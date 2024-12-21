@@ -1,0 +1,60 @@
+import { Product, Extra } from '../types/booking';
+
+export const STUDIO_SETTINGS = {
+  operatingHours: {
+    openingHour: 9, // 9 AM
+    closingHour: 23, // 
+    earliestBookingTime: 9, // Earliest time someone can start a booking
+    latestBookingTime: 16, // Latest time someone can start a booking (considering max duration)
+  },
+  
+  bookingRules: {
+    minAdvanceBookingHours: 24, // Minimum hours in advance for booking
+    maxAdvanceBookingDays: 60, // Maximum days in advance for booking
+  }
+};
+
+export const PRODUCTS: Product[] = [
+  {
+    id: '1',
+    name: 'Studio Rental 1h',
+    price: 75,
+    description: 'One hour studio rental with basic equipment',
+    duration: 1,
+  },
+  {
+    id: '2',
+    name: 'Half Day',
+    price: 250,
+    description: '4 hours studio rental with basic equipment',
+    duration: 4,
+  },
+  {
+    id: '3',
+    name: 'Full Day',
+    price: 450,
+    description: '8 hours studio rental with basic equipment',
+    duration: 8,
+  },
+];
+
+export const EXTRAS: Extra[] = [
+  {
+    id: '1',
+    name: 'Tech Support',
+    price: 50,
+    description: 'Professional technical support during your session',
+  },
+  {
+    id: '2',
+    name: 'Color Backdrop',
+    price: 25,
+    description: 'Professional seamless paper backdrop in various colors',
+  },
+  {
+    id: '3',
+    name: 'Professional Lighting Kit',
+    price: 75,
+    description: 'Additional professional lighting setup',
+  },
+]; 
