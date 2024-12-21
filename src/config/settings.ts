@@ -3,14 +3,19 @@ import { Product, Extra } from '../types/booking';
 export const STUDIO_SETTINGS = {
   operatingHours: {
     openingHour: 9, // 9 AM
-    closingHour: 23, // 
-    earliestBookingTime: 9, // Earliest time someone can start a booking
-    latestBookingTime: 16, // Latest time someone can start a booking (considering max duration)
+    closingHour: 23, // 11 PM
+    earliestBookingTime: 8, // Earliest time someone can start a booking (9 AM)
+    latestBookingTime: 21, // Latest time someone can start a booking (9 PM)
   },
   
   bookingRules: {
     minAdvanceBookingHours: 24, // Minimum hours in advance for booking
     maxAdvanceBookingDays: 60, // Maximum days in advance for booking
+  },
+
+  displaySettings: {
+    showUnavailableSlots: false, // Whether to show or hide unavailable time slots
+    unavailableSlotMessage: '(Booked)', // Message to show for unavailable slots (if shown)
   }
 };
 

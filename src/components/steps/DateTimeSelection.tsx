@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { BookingFormData, TimeSlot } from '../../types/booking';
@@ -20,21 +20,47 @@ const {
   latestBookingTime,
 } = STUDIO_SETTINGS.operatingHours;
 
+const { showUnavailableSlots, unavailableSlotMessage } = STUDIO_SETTINGS.displaySettings;
+
+// Format time for display (e.g., "09:00" or "17:00")
+const formatTime = (hour: number) => {
+  return `${hour.toString().padStart(2, '0')}:00`;
+};
+
+// Get the first bookable date (considering minAdvanceBookingHours)
+const getFirstBookableDate = () => {
+  const now = new Date();
+  const minBookingTime = new Date(
+    now.getTime() + STUDIO_SETTINGS.bookingRules.minAdvanceBookingHours * 60 * 60 * 1000
+  );
+  const date = new Date(minBookingTime);
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
+
 const generateTimeSlots = (duration: number) => {
   const slots: string[] = [];
-  const maxStartHour = Math.min(latestBookingTime, closingHour - duration);
   
+  // Calculate the latest possible start time based on:
+  // 1. Latest allowed booking start time from settings
+  // 2. Time needed to complete the booking before closing
+  const maxStartHour = Math.min(
+    latestBookingTime,
+    closingHour - duration // Ensure booking ends before closing
+  );
+
+  // Start from the earliest allowed booking time
   for (let hour = earliestBookingTime; hour <= maxStartHour; hour++) {
-    const startHour = hour;
-    const endHour = startHour + duration;
-    
-    // Skip slots that would end after closing time
-    if (endHour > closingHour) continue;
-    
-    const startTime = startHour.toString().padStart(2, '0') + ':00';
-    const endTime = endHour.toString().padStart(2, '0') + ':00';
-    
-    slots.push(`${startTime} - ${endTime}`);
+    const startTime = formatTime(hour);
+    const endHour = hour + duration;
+    const endTime = formatTime(endHour);
+
+    // Only add the slot if:
+    // 1. The end time doesn't exceed closing hour
+    // 2. The start time is not before opening hour
+    if (endHour <= closingHour && hour >= openingHour) {
+      slots.push(`${startTime} - ${endTime}`);
+    }
   }
   
   return slots;
@@ -58,8 +84,20 @@ const isSlotAvailable = (
 
   // Check if the slot is within allowed booking time
   const now = new Date();
-  const minBookingTime = new Date(now.getTime() + STUDIO_SETTINGS.bookingRules.minAdvanceBookingHours * 60 * 60 * 1000);
-  if (slotStart < minBookingTime) {
+  const minBookingTime = new Date(
+    now.getTime() + STUDIO_SETTINGS.bookingRules.minAdvanceBookingHours * 60 * 60 * 1000
+  );
+
+  // Check if the slot is within operating hours
+  const startHour = slotStart.getHours();
+  const endHour = slotEnd.getHours();
+  
+  if (
+    startHour < openingHour || // Starts before opening
+    startHour > latestBookingTime || // Starts after latest booking time
+    endHour > closingHour || // Ends after closing
+    slotStart < minBookingTime // Too soon to book
+  ) {
     return false;
   }
 
@@ -78,6 +116,31 @@ const isSlotAvailable = (
   });
 };
 
+// Generate an array of dates for the week view starting from Monday
+const getWeekDates = (currentDate: Date) => {
+  const dates = [];
+  const startOfWeek = new Date(currentDate);
+  // Get to Monday (1 is Monday, 0 is Sunday)
+  const day = startOfWeek.getDay();
+  const diff = day === 0 ? -6 : 1 - day; // If Sunday, go back 6 days, otherwise go to Monday
+  startOfWeek.setDate(currentDate.getDate() + diff);
+
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(startOfWeek);
+    date.setDate(startOfWeek.getDate() + i);
+    dates.push(date);
+  }
+  return dates;
+};
+
+const formatDateForDisplay = (date: Date) => {
+  return new Intl.DateTimeFormat('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  }).format(date);
+};
+
 const DateTimeSelection = ({
   formData,
   updateFormData,
@@ -85,10 +148,24 @@ const DateTimeSelection = ({
   onBack,
 }: DateTimeSelectionProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(
-    formData.date || null
+    formData.date || getFirstBookableDate()
   );
   const [bookedSlots, setBookedSlots] = useState<TimeSlot[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const datePickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Close date picker when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
+        setShowDatePicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const fetchBookedSlots = async () => {
@@ -117,16 +194,22 @@ const DateTimeSelection = ({
   const handleDateChange = (date: Date | null) => {
     setSelectedDate(date);
     updateFormData({ date: date || undefined, timeSlot: undefined });
+    setShowDatePicker(false);
   };
 
   const handleTimeSlotSelect = (timeSlot: string) => {
     updateFormData({ timeSlot });
   };
 
+  const navigateDate = (days: number) => {
+    if (!selectedDate) return;
+    const newDate = new Date(selectedDate);
+    newDate.setDate(selectedDate.getDate() + days);
+    handleDateChange(newDate);
+  };
+
   // Filter out past dates and limit future dates
-  const minDate = new Date();
-  minDate.setHours(0, 0, 0, 0);
-  
+  const minDate = getFirstBookableDate();
   const maxDate = new Date();
   maxDate.setDate(maxDate.getDate() + STUDIO_SETTINGS.bookingRules.maxAdvanceBookingDays);
 
@@ -135,27 +218,92 @@ const DateTimeSelection = ({
     ? generateTimeSlots(formData.selectedProduct.duration)
     : [];
 
+  // Filter and process time slots based on availability
+  const processedTimeSlots = timeSlots.map(timeSlot => ({
+    timeSlot,
+    available: formData.selectedProduct 
+      ? isSlotAvailable(
+          timeSlot,
+          selectedDate || new Date(),
+          bookedSlots,
+          formData.selectedProduct.duration
+        )
+      : false
+  })).filter(({ available }) => showUnavailableSlots || available);
+
+  // Get dates for the week view
+  const weekDates = selectedDate ? getWeekDates(selectedDate) : [];
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Select Date and Time</h2>
       
       <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Select Date
-          </label>
-          <DatePicker
-            selected={selectedDate}
-            onChange={handleDateChange}
-            minDate={minDate}
-            maxDate={maxDate}
-            dateFormat="MMMM d, yyyy"
-            className="w-full p-2 border border-gray-300 rounded-md"
-            placeholderText="Select a date"
-          />
-          <p className="mt-1 text-sm text-gray-500">
-            You can book up to {STUDIO_SETTINGS.bookingRules.maxAdvanceBookingDays} days in advance
-          </p>
+        <div className="relative">
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => navigateDate(-7)}
+              className="px-3 py-1 text-gray-600 border rounded-md hover:bg-gray-50"
+            >
+              Previous Week
+            </button>
+            <button
+              onClick={() => setShowDatePicker(!showDatePicker)}
+              className="px-3 py-1 text-blue-600 border border-blue-300 rounded-md hover:bg-blue-50"
+            >
+              {selectedDate ? formatDateForDisplay(selectedDate) : 'Select Date'}
+            </button>
+            <button
+              onClick={() => navigateDate(7)}
+              className="px-3 py-1 text-gray-600 border rounded-md hover:bg-gray-50"
+            >
+              Next Week
+            </button>
+          </div>
+
+          {showDatePicker && (
+            <div 
+              ref={datePickerRef}
+              className="absolute z-10 bg-white shadow-lg rounded-lg p-4 border mt-2 left-1/2 transform -translate-x-1/2"
+            >
+              <DatePicker
+                selected={selectedDate}
+                onChange={handleDateChange}
+                minDate={minDate}
+                maxDate={maxDate}
+                dateFormat="MMMM d, yyyy"
+                inline
+                calendarStartDay={1} // Start week on Monday
+              />
+            </div>
+          )}
+
+          <div className="grid grid-cols-7 gap-2 mb-4">
+            {weekDates.map((date) => {
+              const isSelected = selectedDate?.toDateString() === date.toDateString();
+              const isPast = date < minDate;
+              const isFuture = date > maxDate;
+              const isDisabled = isPast || isFuture;
+
+              return (
+                <button
+                  key={date.toISOString()}
+                  onClick={() => !isDisabled && handleDateChange(date)}
+                  disabled={isDisabled}
+                  className={`p-2 text-center rounded-md transition-colors ${
+                    isDisabled
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : isSelected
+                      ? 'bg-blue-100 text-blue-700 font-semibold'
+                      : 'hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="text-xs font-medium">{date.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                  <div className="text-sm">{date.getDate()}</div>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {selectedDate && formData.selectedProduct && (
@@ -165,39 +313,35 @@ const DateTimeSelection = ({
             </label>
             {isLoading ? (
               <div className="text-center py-4">Loading available slots...</div>
-            ) : (
+            ) : processedTimeSlots.length > 0 ? (
               <>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  {timeSlots.map((timeSlot) => {
-                    const available = isSlotAvailable(
-                      timeSlot,
-                      selectedDate,
-                      bookedSlots,
-                      formData.selectedProduct!.duration
-                    );
-                    return (
-                      <button
-                        key={timeSlot}
-                        onClick={() => available && handleTimeSlotSelect(timeSlot)}
-                        disabled={!available}
-                        className={`p-2 text-sm border rounded-md transition-colors ${
-                          !available
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : formData.timeSlot === timeSlot
-                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                            : 'border-gray-300 hover:border-blue-300'
-                        }`}
-                      >
-                        {timeSlot}
-                        {!available && <span className="block text-xs">(Booked)</span>}
-                      </button>
-                    );
-                  })}
+                  {processedTimeSlots.map(({ timeSlot, available }) => (
+                    <button
+                      key={timeSlot}
+                      onClick={() => available && handleTimeSlotSelect(timeSlot)}
+                      disabled={!available}
+                      className={`p-2 text-sm border rounded-md transition-colors ${
+                        !available
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          : formData.timeSlot === timeSlot
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-300 hover:border-blue-300'
+                      }`}
+                    >
+                      {timeSlot}
+                      {!available && <span className="block text-xs">{unavailableSlotMessage}</span>}
+                    </button>
+                  ))}
                 </div>
                 <p className="mt-2 text-sm text-gray-500">
                   Bookings must be made at least {STUDIO_SETTINGS.bookingRules.minAdvanceBookingHours} hours in advance
                 </p>
               </>
+            ) : (
+              <p className="text-center py-4 text-gray-500">
+                No {showUnavailableSlots ? '' : 'available'} time slots for this date
+              </p>
             )}
           </div>
         )}
