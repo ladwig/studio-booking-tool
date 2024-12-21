@@ -57,7 +57,7 @@ const ExtrasSelection = ({
                   <h3 className="font-semibold text-lg">{extra.name}</h3>
                   <p className="text-gray-600 text-sm mt-1">{extra.description}</p>
                 </div>
-                <p className="text-blue-600 font-bold">${formatCurrency(extra.price)}</p>
+                <p className="text-blue-600 font-bold">{formatCurrency(extra.price)}</p>
               </div>
             </div>
           );
