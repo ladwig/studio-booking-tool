@@ -18,6 +18,13 @@ const ProductSelection = ({
     updateFormData({ selectedProduct: product });
   };
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('de-DE', {
+      style: 'currency',
+      currency: 'EUR',
+    }).format(amount);
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Select a Product</h2>
@@ -34,7 +41,7 @@ const ProductSelection = ({
           >
             <h3 className="font-semibold text-lg">{product.name}</h3>
             <p className="text-gray-600 text-sm mt-1">{product.description}</p>
-            <p className="text-blue-600 font-bold mt-2">${product.price}</p>
+            <p className="text-blue-600 font-bold mt-2">{formatCurrency(product.price)}</p>
           </div>
         ))}
       </div>

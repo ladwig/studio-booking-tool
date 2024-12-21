@@ -29,6 +29,13 @@ const ExtrasSelection = ({
     updateFormData({ selectedExtras: newExtras });
   };
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('de-DE', {
+      style: 'currency',
+      currency: 'EUR',
+    }).format(amount);
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Select Additional Services</h2>
@@ -50,7 +57,7 @@ const ExtrasSelection = ({
                   <h3 className="font-semibold text-lg">{extra.name}</h3>
                   <p className="text-gray-600 text-sm mt-1">{extra.description}</p>
                 </div>
-                <p className="text-blue-600 font-bold">${extra.price}</p>
+                <p className="text-blue-600 font-bold">${formatCurrency(extra.price)}</p>
               </div>
             </div>
           );

@@ -13,18 +13,22 @@ export interface Extra {
   description: string;
 }
 
+export interface PersonalInfo {
+  firstName: string;
+  lastName: string;
+  company?: string;
+  email: string;
+  phone: string;
+}
+
 export interface BookingFormData {
-  selectedProduct?: Product;
+  selectedProduct: Product | undefined;
   selectedExtras: Extra[];
-  date?: Date;
-  timeSlot?: string;
-  personalInfo: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-  };
+  date: Date | undefined;
+  timeSlot: string;
+  personalInfo: PersonalInfo;
   note: string;
+  termsAccepted: boolean;
 }
 
 export interface TimeSlot {

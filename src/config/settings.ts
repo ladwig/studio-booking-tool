@@ -16,6 +16,11 @@ export const STUDIO_SETTINGS = {
   displaySettings: {
     showUnavailableSlots: false, // Whether to show or hide unavailable time slots
     unavailableSlotMessage: '(Booked)', // Message to show for unavailable slots (if shown)
+  },
+
+  emailSettings: {
+    adminEmail: 'admin@qs1.studio',
+    notificationSubject: 'New Studio Booking Request',
   }
 };
 
