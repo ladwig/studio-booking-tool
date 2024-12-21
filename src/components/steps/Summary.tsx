@@ -139,7 +139,7 @@ const Summary = ({ formData, onBack, onSubmit }: SummaryProps) => {
       {success && (
         <div className="p-4 bg-green-50 border border-green-200 rounded-md">
           <p className="text-green-600">
-            Booking submitted successfully! We'll contact you shortly to confirm your booking.
+            Booking submitted successfully! We&apos;ll contact you shortly to confirm your booking.
           </p>
         </div>
       )}

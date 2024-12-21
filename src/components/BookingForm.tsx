@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { BookingFormData, Product } from '../types/booking';
+import { BookingFormData } from '../types/booking';
 import ProductSelection from './steps/ProductSelection';
 import ExtrasSelection from './steps/ExtrasSelection';
 import DateTimeSelection from './steps/DateTimeSelection';
