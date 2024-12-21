@@ -1,6 +1,7 @@
 import { Product, Extra } from '../types/booking';
 
 export const STUDIO_SETTINGS = {
+  timezone: 'Europe/Berlin',
   operatingHours: {
     openingHour: 9, // 9 AM
     closingHour: 23, // 11 PM

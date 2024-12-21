@@ -22,16 +22,27 @@ const {
 
 const { showUnavailableSlots, unavailableSlotMessage } = STUDIO_SETTINGS.displaySettings;
 
+// Add timezone constant at the top
+const TIMEZONE = 'Europe/Berlin';
+
 // Format time for display (e.g., "09:00" or "17:00")
 const formatTime = (hour: number) => {
-  return `${hour.toString().padStart(2, '0')}:00`;
+  const date = new Date();
+  date.setHours(hour, 0, 0, 0);
+  return date.toLocaleTimeString('de-DE', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: false,
+    timeZone: TIMEZONE 
+  });
 };
 
 // Get the first bookable date (considering minAdvanceBookingHours)
 const getFirstBookableDate = () => {
   const now = new Date();
+  const berlinTime = new Date(now.toLocaleString('en-US', { timeZone: TIMEZONE }));
   const minBookingTime = new Date(
-    now.getTime() + STUDIO_SETTINGS.bookingRules.minAdvanceBookingHours * 60 * 60 * 1000
+    berlinTime.getTime() + STUDIO_SETTINGS.bookingRules.minAdvanceBookingHours * 60 * 60 * 1000
   );
   const date = new Date(minBookingTime);
   date.setHours(0, 0, 0, 0);
@@ -82,13 +93,14 @@ const isSlotAvailable = (
   const slotEnd = new Date(slotStart);
   slotEnd.setHours(slotStart.getHours() + duration);
 
-  // Check if the slot is within allowed booking time
+  // Convert to Berlin timezone for comparison
   const now = new Date();
+  const berlinNow = new Date(now.toLocaleString('en-US', { timeZone: TIMEZONE }));
   const minBookingTime = new Date(
-    now.getTime() + STUDIO_SETTINGS.bookingRules.minAdvanceBookingHours * 60 * 60 * 1000
+    berlinNow.getTime() + STUDIO_SETTINGS.bookingRules.minAdvanceBookingHours * 60 * 60 * 1000
   );
 
-  // Check if the slot is within operating hours
+  // Check if the slot is within allowed booking time
   const startHour = slotStart.getHours();
   const endHour = slotEnd.getHours();
   
