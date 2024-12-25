@@ -1,52 +1,77 @@
 (function() {
-  // Create and inject the iframe
-  function createBookingIframe(targetElementId) {
-    const iframe = document.createElement('iframe');
-    iframe.src = 'https://your-vercel-url.vercel.app'; // Replace with your actual Vercel URL
-    iframe.style.width = '100%';
-    iframe.style.height = '800px'; // Adjust as needed
-    iframe.style.border = 'none';
-    iframe.style.overflow = 'hidden';
-    
-    // Get the target element
-    const targetElement = document.getElementById(targetElementId);
-    if (!targetElement) {
-      console.error(`Element with ID "${targetElementId}" not found`);
-      return;
-    }
-
-    // Inject the iframe
-    targetElement.appendChild(iframe);
-
-    // Pass parent styles to iframe
-    function updateIframeStyles() {
-      const computedStyle = window.getComputedStyle(document.body);
-      const styles = {
-        '--font-family': computedStyle.fontFamily,
-        '--text-color': computedStyle.color,
-        '--primary-color': '#2563eb', // You can make this configurable
-        '--primary-hover-color': '#1d4ed8',
+  class StudioBookingWidget {
+    constructor(config = {}) {
+      this.config = {
+        url: 'https://your-vercel-url.vercel.app', // Replace with your Vercel URL
+        theme: {
+          primaryColor: '#2563eb',
+          primaryHoverColor: '#1d4ed8',
+          textColor: 'inherit',
+          fontFamily: 'inherit',
+          ...config.theme
+        },
+        width: '100%',
+        height: '800px',
+        containerId: 'studio-booking-widget-' + Math.random().toString(36).substring(7),
+        ...config
       };
 
-      // Send styles to iframe
-      iframe.contentWindow.postMessage({
-        type: 'UPDATE_STYLES',
-        styles
-      }, '*');
+      this.init();
     }
 
-    // Update styles initially and on window resize
-    window.addEventListener('resize', updateIframeStyles);
-    updateIframeStyles();
-
-    // Handle iframe height adjustments
-    window.addEventListener('message', function(event) {
-      if (event.data.type === 'RESIZE_IFRAME') {
-        iframe.style.height = `${event.data.height}px`;
+    init() {
+      // Create container if not exists
+      if (!document.getElementById(this.config.containerId)) {
+        const container = document.createElement('div');
+        container.id = this.config.containerId;
+        document.currentScript?.parentNode?.insertBefore(container, document.currentScript);
       }
-    });
+
+      // Create and inject the iframe
+      const iframe = document.createElement('iframe');
+      iframe.src = this.config.url;
+      iframe.style.width = this.config.width;
+      iframe.style.height = this.config.height;
+      iframe.style.border = 'none';
+      iframe.style.overflow = 'hidden';
+      
+      const container = document.getElementById(this.config.containerId);
+      if (!container) {
+        console.error('Container element not found');
+        return;
+      }
+
+      container.appendChild(iframe);
+
+      // Pass styles to iframe
+      const updateIframeStyles = () => {
+        const computedStyle = window.getComputedStyle(document.body);
+        const styles = {
+          '--font-family': this.config.theme.fontFamily || computedStyle.fontFamily,
+          '--text-color': this.config.theme.textColor || computedStyle.color,
+          '--primary-color': this.config.theme.primaryColor,
+          '--primary-hover-color': this.config.theme.primaryHoverColor,
+        };
+
+        iframe.contentWindow.postMessage({
+          type: 'UPDATE_STYLES',
+          styles
+        }, '*');
+      };
+
+      // Update styles initially and on window resize
+      window.addEventListener('resize', updateIframeStyles);
+      iframe.addEventListener('load', updateIframeStyles);
+
+      // Handle iframe height adjustments
+      window.addEventListener('message', (event) => {
+        if (event.data.type === 'RESIZE_IFRAME') {
+          iframe.style.height = `${event.data.height}px`;
+        }
+      });
+    }
   }
 
-  // Expose the function globally
-  window.createBookingIframe = createBookingIframe;
+  // Expose the widget class globally
+  window.StudioBookingWidget = StudioBookingWidget;
 })(); 
