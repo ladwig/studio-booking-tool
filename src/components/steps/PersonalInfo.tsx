@@ -1,6 +1,6 @@
 'use client';
 
-import { BookingFormData } from '../../types/booking';
+import { BookingFormData, PersonalInfo as PersonalInfoType } from '../../types/booking';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 interface PersonalInfoProps {
@@ -17,20 +17,23 @@ const PersonalInfo = ({
   onBack,
 }: PersonalInfoProps) => {
   const { translations } = useLanguage();
-  const { personalInfo = {} } = formData;
+  const { personalInfo } = formData;
 
-  const handleInputChange = (field: keyof typeof personalInfo, value: string) => {
+  const handleInputChange = (field: keyof PersonalInfoType, value: string) => {
     updateFormData({
-      personalInfo: { ...personalInfo, [field]: value },
+      personalInfo: {
+        ...personalInfo,
+        [field]: value,
+      },
     });
   };
 
   const isFormValid = () => {
     return (
-      personalInfo.firstName &&
-      personalInfo.lastName &&
-      personalInfo.email &&
-      personalInfo.phone
+      personalInfo.firstName.trim() !== '' &&
+      personalInfo.lastName.trim() !== '' &&
+      personalInfo.email.trim() !== '' &&
+      personalInfo.phone.trim() !== ''
     );
   };
 
@@ -47,9 +50,9 @@ const PersonalInfo = ({
           </label>
           <input
             type="text"
-            value={personalInfo.firstName || ''}
+            value={personalInfo.firstName}
             onChange={(e) => handleInputChange('firstName', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             required
           />
         </div>
@@ -60,9 +63,9 @@ const PersonalInfo = ({
           </label>
           <input
             type="text"
-            value={personalInfo.lastName || ''}
+            value={personalInfo.lastName}
             onChange={(e) => handleInputChange('lastName', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             required
           />
         </div>
@@ -75,7 +78,7 @@ const PersonalInfo = ({
             type="text"
             value={personalInfo.company || ''}
             onChange={(e) => handleInputChange('company', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           />
         </div>
 
@@ -85,9 +88,9 @@ const PersonalInfo = ({
           </label>
           <input
             type="email"
-            value={personalInfo.email || ''}
+            value={personalInfo.email}
             onChange={(e) => handleInputChange('email', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             required
           />
         </div>
@@ -98,9 +101,9 @@ const PersonalInfo = ({
           </label>
           <input
             type="tel"
-            value={personalInfo.phone || ''}
+            value={personalInfo.phone}
             onChange={(e) => handleInputChange('phone', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             required
           />
         </div>
@@ -113,7 +116,7 @@ const PersonalInfo = ({
         <textarea
           value={formData.note || ''}
           onChange={(e) => updateFormData({ note: e.target.value })}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           rows={4}
           placeholder={translations.booking.notesPlaceholder}
         />

@@ -6,6 +6,13 @@ export const de = {
     required: 'Erforderlich',
     loading: 'Wird geladen...',
   },
+  steps: {
+    selectService: 'Service auswählen',
+    addExtras: 'Extras hinzufügen',
+    chooseDateAndTime: 'Datum & Zeit wählen',
+    personalDetails: 'Persönliche Daten',
+    reviewAndConfirm: 'Überprüfen & Bestätigen',
+  },
   booking: {
     selectProduct: 'Produkt auswählen',
     additionalServices: 'Zusätzliche Services',
@@ -33,5 +40,14 @@ export const de = {
     nextWeek: 'Nächste Woche',
     noTimeSlots: 'Keine verfügbaren Zeitfenster für dieses Datum',
     advanceBookingNotice: 'Buchungen müssen mindestens {hours} Stunden im Voraus erfolgen',
+  },
+  weekdays: {
+    monday: 'Mo',
+    tuesday: 'Di',
+    wednesday: 'Mi',
+    thursday: 'Do',
+    friday: 'Fr',
+    saturday: 'Sa',
+    sunday: 'So',
   }
 }; 

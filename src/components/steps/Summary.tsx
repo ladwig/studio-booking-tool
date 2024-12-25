@@ -6,11 +6,12 @@ import { useLanguage } from '../../contexts/LanguageContext';
 
 interface SummaryProps {
   formData: BookingFormData;
+  updateFormData: (data: Partial<BookingFormData>) => void;
   onBack: () => void;
   onSubmit: () => Promise<void>;
 }
 
-const Summary = ({ formData, onBack, onSubmit }: SummaryProps) => {
+const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) => {
   const { translations } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -141,9 +142,7 @@ const Summary = ({ formData, onBack, onSubmit }: SummaryProps) => {
             type="checkbox"
             id="terms"
             checked={formData.termsAccepted}
-            onChange={(e) =>
-              formData.updateFormData?.({ termsAccepted: e.target.checked })
-            }
+            onChange={(e) => updateFormData({ termsAccepted: e.target.checked })}
             className="h-4 w-4 text-blue-600"
           />
           <label htmlFor="terms" className="text-sm text-gray-600">

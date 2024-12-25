@@ -55,8 +55,16 @@ const BookingForm = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
-  const handleSubmit = () => {
-    console.log('Form submitted:', formData);
+  const handleSubmit = async () => {
+    try {
+      // Here you would typically make an API call to submit the booking
+      console.log('Form submitted:', formData);
+      // You can add your submission logic here
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      return Promise.reject(error);
+    }
   };
 
   const getStepName = (stepId: number) => {
@@ -142,6 +150,7 @@ const BookingForm = () => {
         return (
           <Summary
             formData={formData}
+            updateFormData={updateFormData}
             onBack={handleBack}
             onSubmit={handleSubmit}
           />

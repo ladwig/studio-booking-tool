@@ -249,8 +249,9 @@ const DateTimeSelection = ({
   const weekDates = selectedDate ? getWeekDates(selectedDate) : [];
 
   const formatWeekday = (date: Date) => {
-    const day = date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-    return translations.weekdays[day as keyof typeof translations.weekdays];
+    const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const dayIndex = date.getDay();
+    return translations.weekdays[weekdays[dayIndex] as keyof typeof translations.weekdays];
   };
 
   return (

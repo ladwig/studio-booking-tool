@@ -6,6 +6,13 @@ export const en = {
     required: 'Required',
     loading: 'Loading...',
   },
+  steps: {
+    selectService: 'Select Service',
+    addExtras: 'Add Extras',
+    chooseDateAndTime: 'Choose Date & Time',
+    personalDetails: 'Personal Details',
+    reviewAndConfirm: 'Review & Confirm',
+  },
   booking: {
     selectProduct: 'Select a Product',
     additionalServices: 'Additional Services',
@@ -33,5 +40,14 @@ export const en = {
     nextWeek: 'Next Week',
     noTimeSlots: 'No available time slots for this date',
     advanceBookingNotice: 'Bookings must be made at least {hours} hours in advance',
+  },
+  weekdays: {
+    monday: 'Mon',
+    tuesday: 'Tue',
+    wednesday: 'Wed',
+    thursday: 'Thu',
+    friday: 'Fri',
+    saturday: 'Sat',
+    sunday: 'Sun',
   }
 }; 
