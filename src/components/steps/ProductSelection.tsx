@@ -2,6 +2,7 @@
 
 import { BookingFormData, Product } from '../../types/booking';
 import { PRODUCTS } from '../../config/settings';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ProductSelectionProps {
   formData: BookingFormData;
@@ -14,6 +15,8 @@ const ProductSelection = ({
   updateFormData,
   onNext,
 }: ProductSelectionProps) => {
+  const { translations } = useLanguage();
+
   const handleProductSelect = (product: Product) => {
     updateFormData({ selectedProduct: product });
   };
@@ -27,7 +30,9 @@ const ProductSelection = ({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Select a Product</h2>
+      <h2 className="text-2xl font-bold text-gray-900">
+        {translations.booking.selectProduct}
+      </h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {PRODUCTS.map((product) => (
           <div
@@ -55,7 +60,7 @@ const ProductSelection = ({
               : 'bg-gray-400 cursor-not-allowed'
           }`}
         >
-          Next
+          {translations.common.next}
         </button>
       </div>
     </div>

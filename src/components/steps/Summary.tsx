@@ -2,36 +2,18 @@
 
 import { useState } from 'react';
 import { BookingFormData } from '../../types/booking';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface SummaryProps {
   formData: BookingFormData;
   onBack: () => void;
-  onSubmit: () => void;
+  onSubmit: () => Promise<void>;
 }
 
 const Summary = ({ formData, onBack, onSubmit }: SummaryProps) => {
+  const { translations } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-
-  const calculateTotal = () => {
-    const productPrice = formData.selectedProduct?.price || 0;
-    const extrasTotal = formData.selectedExtras.reduce(
-      (sum, extra) => sum + extra.price,
-      0
-    );
-    return productPrice + extrasTotal;
-  };
-
-  const formatDate = (date: Date | undefined) => {
-    if (!date) return '';
-    return new Date(date).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('de-DE', {
@@ -40,128 +22,156 @@ const Summary = ({ formData, onBack, onSubmit }: SummaryProps) => {
     }).format(amount);
   };
 
+  const calculateTotal = () => {
+    const productPrice = formData.selectedProduct?.price || 0;
+    const extrasTotal = formData.selectedExtras?.reduce(
+      (sum, extra) => sum + extra.price,
+      0
+    ) || 0;
+    return productPrice + extrasTotal;
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    setError(null);
-
     try {
-      const bookingDataToSend = {
-        ...formData,
-        date: formData.date?.toISOString(),
-      };
-
-      const response = await fetch('/api/booking/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(bookingDataToSend),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || data.details || 'Failed to submit booking');
-      }
-
-      setSuccess(true);
-      onSubmit();
-    } catch (err) {
-      console.error('Submission error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to submit booking');
+      await onSubmit();
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error('Submission error:', error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (isSubmitted) {
+    return (
+      <div className="text-center py-8">
+        <div className="mb-4 text-green-600">
+          <svg
+            className="mx-auto h-12 w-12"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 48 48"
+          >
+            <circle
+              className="opacity-25"
+              cx="24"
+              cy="24"
+              r="20"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M14 24l8 8 16-16"
+            />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          {translations.booking.submitted}
+        </h2>
+        <p className="text-gray-600">
+          {translations.booking.bookingSuccess}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Selected Service</h3>
-          <div className="flex justify-between items-center">
-            <span>{formData.selectedProduct?.name}</span>
-            <span className="font-medium">{formatCurrency(formData.selectedProduct?.price || 0)}</span>
-          </div>
+      <h2 className="text-2xl font-bold text-gray-900">
+        {translations.steps.reviewAndConfirm}
+      </h2>
+
+      <div className="space-y-4">
+        <div className="border rounded-lg p-4">
+          <h3 className="font-semibold mb-2">{translations.booking.selectProduct}</h3>
+          <p>{formData.selectedProduct?.name} - {formatCurrency(formData.selectedProduct?.price || 0)}</p>
         </div>
 
-        {formData.selectedExtras.length > 0 && (
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Additional Services</h3>
-            {formData.selectedExtras.map((extra) => (
-              <div key={extra.id} className="flex justify-between items-center">
-                <span>{extra.name}</span>
-                <span className="font-medium">{formatCurrency(extra.price)}</span>
-              </div>
-            ))}
+        {formData.selectedExtras?.length > 0 && (
+          <div className="border rounded-lg p-4">
+            <h3 className="font-semibold mb-2">{translations.booking.additionalServices}</h3>
+            <ul className="space-y-2">
+              {formData.selectedExtras.map((extra) => (
+                <li key={extra.id} className="flex justify-between">
+                  <span>{extra.name}</span>
+                  <span>{formatCurrency(extra.price)}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Date & Time</h3>
-          <p>{formatDate(formData.date)}</p>
-          <p>{formData.timeSlot}</p>
+        <div className="border rounded-lg p-4">
+          <h3 className="font-semibold mb-2">{translations.booking.dateAndTime}</h3>
+          <p>{formData.date?.toLocaleDateString()} - {formData.timeSlot}</p>
         </div>
 
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Personal Information</h3>
-          <p>
-            {formData.personalInfo.firstName} {formData.personalInfo.lastName}
-          </p>
-          {formData.personalInfo.company && (
-            <p>{formData.personalInfo.company}</p>
-          )}
-          <p>{formData.personalInfo.email}</p>
-          <p>{formData.personalInfo.phone}</p>
+        <div className="border rounded-lg p-4">
+          <h3 className="font-semibold mb-2">{translations.booking.personalInformation}</h3>
+          <div className="grid grid-cols-2 gap-2">
+            <p><span className="text-gray-600">{translations.booking.firstName}:</span> {formData.personalInfo.firstName}</p>
+            <p><span className="text-gray-600">{translations.booking.lastName}:</span> {formData.personalInfo.lastName}</p>
+            {formData.personalInfo.company && (
+              <p><span className="text-gray-600">{translations.booking.company}:</span> {formData.personalInfo.company}</p>
+            )}
+            <p><span className="text-gray-600">{translations.booking.email}:</span> {formData.personalInfo.email}</p>
+            <p><span className="text-gray-600">{translations.booking.phone}:</span> {formData.personalInfo.phone}</p>
+          </div>
         </div>
 
         {formData.note && (
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Additional Notes</h3>
-            <p className="text-gray-700">{formData.note}</p>
+          <div className="border rounded-lg p-4">
+            <h3 className="font-semibold mb-2">{translations.booking.additionalNotes}</h3>
+            <p>{formData.note}</p>
           </div>
         )}
 
-        <div className="border-t pt-4 mt-4">
-          <div className="flex justify-between items-center text-lg font-bold">
-            <span>Total</span>
+        <div className="border-t pt-4 mt-6">
+          <div className="flex justify-between items-center text-lg font-semibold">
+            <span>{translations.booking.total}</span>
             <span>{formatCurrency(calculateTotal())}</span>
           </div>
         </div>
+
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="terms"
+            checked={formData.termsAccepted}
+            onChange={(e) =>
+              formData.updateFormData?.({ termsAccepted: e.target.checked })
+            }
+            className="h-4 w-4 text-blue-600"
+          />
+          <label htmlFor="terms" className="text-sm text-gray-600">
+            {translations.booking.iAcceptThe}{' '}
+            <a href="#" className="text-blue-600 hover:underline">
+              {translations.booking.bookingTerms}
+            </a>
+          </label>
+        </div>
       </div>
-
-      {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-red-600">{error}</p>
-        </div>
-      )}
-
-      {success && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-md">
-          <p className="text-green-600">
-            Booking submitted successfully! We&apos;ll contact you shortly to confirm your booking.
-          </p>
-        </div>
-      )}
 
       <div className="flex justify-between mt-6">
         <button
           onClick={onBack}
-          disabled={isSubmitting}
-          className="px-6 py-2 rounded-md text-gray-600 border border-gray-300 hover:bg-gray-50 disabled:opacity-50"
+          className="px-6 py-2 rounded-md text-gray-600 hover:bg-gray-100"
         >
-          Back
+          {translations.common.back}
         </button>
         <button
           onClick={handleSubmit}
-          disabled={isSubmitting || success}
+          disabled={isSubmitting || !formData.termsAccepted}
           className={`px-6 py-2 rounded-md text-white ${
-            isSubmitting || success
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
+            !isSubmitting && formData.termsAccepted
+              ? 'bg-blue-600 hover:bg-blue-700'
+              : 'bg-gray-400 cursor-not-allowed'
           }`}
         >
-          {isSubmitting ? 'Submitting...' : success ? 'Submitted' : 'Confirm Booking'}
+          {isSubmitting ? translations.booking.submitting : translations.booking.confirmBooking}
         </button>
       </div>
     </div>

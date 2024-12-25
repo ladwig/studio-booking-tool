@@ -2,6 +2,7 @@
 
 import { BookingFormData, Extra } from '../../types/booking';
 import { EXTRAS } from '../../config/settings';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ExtrasSelectionProps {
   formData: BookingFormData;
@@ -16,17 +17,21 @@ const ExtrasSelection = ({
   onNext,
   onBack,
 }: ExtrasSelectionProps) => {
-  const toggleExtra = (extra: Extra) => {
-    const isSelected = formData.selectedExtras.some((e) => e.id === extra.id);
-    let newExtras;
-    
+  const { translations } = useLanguage();
+
+  const handleExtraToggle = (extra: Extra) => {
+    const currentExtras = formData.selectedExtras || [];
+    const isSelected = currentExtras.some((e) => e.id === extra.id);
+
     if (isSelected) {
-      newExtras = formData.selectedExtras.filter((e) => e.id !== extra.id);
+      updateFormData({
+        selectedExtras: currentExtras.filter((e) => e.id !== extra.id),
+      });
     } else {
-      newExtras = [...formData.selectedExtras, extra];
+      updateFormData({
+        selectedExtras: [...currentExtras, extra],
+      });
     }
-    
-    updateFormData({ selectedExtras: newExtras });
   };
 
   const formatCurrency = (amount: number) => {
@@ -38,10 +43,14 @@ const ExtrasSelection = ({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Select Additional Services</h2>
+      <h2 className="text-2xl font-bold text-gray-900">
+        {translations.booking.additionalServices}
+      </h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {EXTRAS.map((extra) => {
-          const isSelected = formData.selectedExtras.some((e) => e.id === extra.id);
+          const isSelected = formData.selectedExtras?.some(
+            (e) => e.id === extra.id
+          );
           return (
             <div
               key={extra.id}
@@ -50,15 +59,13 @@ const ExtrasSelection = ({
                   ? 'border-blue-500 bg-blue-50'
                   : 'border-gray-200 hover:border-blue-300'
               }`}
-              onClick={() => toggleExtra(extra)}
+              onClick={() => handleExtraToggle(extra)}
             >
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-semibold text-lg">{extra.name}</h3>
-                  <p className="text-gray-600 text-sm mt-1">{extra.description}</p>
-                </div>
-                <p className="text-blue-600 font-bold">{formatCurrency(extra.price)}</p>
-              </div>
+              <h3 className="font-semibold text-lg">{extra.name}</h3>
+              <p className="text-gray-600 text-sm mt-1">{extra.description}</p>
+              <p className="text-blue-600 font-bold mt-2">
+                {formatCurrency(extra.price)}
+              </p>
             </div>
           );
         })}
@@ -66,15 +73,15 @@ const ExtrasSelection = ({
       <div className="flex justify-between mt-6">
         <button
           onClick={onBack}
-          className="px-6 py-2 rounded-md text-gray-600 border border-gray-300 hover:bg-gray-50"
+          className="px-6 py-2 rounded-md text-gray-600 hover:bg-gray-100"
         >
-          Back
+          {translations.common.back}
         </button>
         <button
           onClick={onNext}
           className="px-6 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700"
         >
-          Next
+          {translations.common.next}
         </button>
       </div>
     </div>

@@ -14,16 +14,18 @@ import {
   UserIcon, 
   CheckCircleIcon 
 } from '@heroicons/react/24/outline';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const STEPS = [
-  { id: 1, name: 'Select Service', icon: ShoppingBagIcon },
-  { id: 2, name: 'Add Extras', icon: PlusCircleIcon },
-  { id: 3, name: 'Choose Date & Time', icon: CalendarDaysIcon },
-  { id: 4, name: 'Personal Details', icon: UserIcon },
-  { id: 5, name: 'Review & Confirm', icon: CheckCircleIcon },
+  { id: 1, icon: ShoppingBagIcon },
+  { id: 2, icon: PlusCircleIcon },
+  { id: 3, icon: CalendarDaysIcon },
+  { id: 4, icon: UserIcon },
+  { id: 5, icon: CheckCircleIcon },
 ];
 
 const BookingForm = () => {
+  const { translations } = useLanguage();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<BookingFormData>({
     selectedProduct: undefined,
@@ -57,6 +59,23 @@ const BookingForm = () => {
     console.log('Form submitted:', formData);
   };
 
+  const getStepName = (stepId: number) => {
+    switch (stepId) {
+      case 1:
+        return translations.steps.selectService;
+      case 2:
+        return translations.steps.addExtras;
+      case 3:
+        return translations.steps.chooseDateAndTime;
+      case 4:
+        return translations.steps.personalDetails;
+      case 5:
+        return translations.steps.reviewAndConfirm;
+      default:
+        return '';
+    }
+  };
+
   const renderProgressBar = () => {
     const progress = ((currentStep - 1) / (STEPS.length - 1)) * 100;
 
@@ -78,10 +97,10 @@ const BookingForm = () => {
               >
                 <Icon className="w-6 h-6 md:hidden" />
                 <span className="text-sm font-medium hidden md:block">
-                  {step.name}
+                  {getStepName(step.id)}
                 </span>
                 <span className="text-xs md:hidden">
-                  Step {step.id}
+                  {translations.steps.selectService} {step.id}
                 </span>
               </div>
             );
