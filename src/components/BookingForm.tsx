@@ -81,36 +81,21 @@ const BookingForm = () => {
 
     return (
       <div className="mb-8">
-        <div className="flex justify-between mb-2">
-          {STEPS.map((step) => {
-            const Icon = step.icon;
-            return (
-              <div
-                key={step.id}
-                className={`flex flex-col items-center space-y-1 ${
-                  step.id === currentStep
-                    ? 'text-blue-600'
-                    : step.id < currentStep
-                    ? 'text-gray-600'
-                    : 'text-gray-400'
-                }`}
-              >
-                <Icon className="w-6 h-6 md:hidden" />
-                <span className="text-sm font-medium hidden md:block">
-                  {getStepName(step.id)}
-                </span>
-                <span className="text-xs md:hidden">
-                  {translations.steps.selectService} {step.id}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-        <div className="h-2 bg-gray-200 rounded-full mt-2">
-          <div
-            className="h-2 bg-blue-600 rounded-full transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
+        <div className="flex items-center justify-center space-x-4">
+          {STEPS.map(({ id, icon: Icon }) => (
+            <div
+              key={id}
+              className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                id === currentStep
+                  ? 'bg-blue-600 text-white'
+                  : id < currentStep
+                  ? 'bg-green-500 text-white'
+                  : 'bg-gray-200 text-gray-400'
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -167,7 +152,7 @@ const BookingForm = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
+    <div className="max-w-3xl mx-auto px-4 py-8">
       {renderProgressBar()}
       {renderStep()}
     </div>
