@@ -67,26 +67,7 @@ const BookingForm = () => {
     }
   };
 
-  const getStepName = (stepId: number) => {
-    switch (stepId) {
-      case 1:
-        return translations.steps.selectService;
-      case 2:
-        return translations.steps.addExtras;
-      case 3:
-        return translations.steps.chooseDateAndTime;
-      case 4:
-        return translations.steps.personalDetails;
-      case 5:
-        return translations.steps.reviewAndConfirm;
-      default:
-        return '';
-    }
-  };
-
   const renderProgressBar = () => {
-    const progress = ((currentStep - 1) / (STEPS.length - 1)) * 100;
-
     return (
       <div className="mb-8">
         <div className="flex items-center justify-center space-x-4">
