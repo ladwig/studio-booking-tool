@@ -1,19 +1,30 @@
+/* stylelint-disable-next-line */
 @tailwind base;
+/* stylelint-disable-next-line */
 @tailwind components;
+/* stylelint-disable-next-line */
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  background: transparent;
+  --font-family: inherit;
+  --text-color: inherit;
+  --primary-color: #2563eb;
+  --primary-hover-color: #1d4ed8;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+body {
+  font-family: var(--font-family);
+  color: var(--text-color);
+  background: transparent;
+}
+
+.bg-blue-600 {
+  background-color: var(--primary-color);
+}
+
+.hover\:bg-blue-700:hover {
+  background-color: var(--primary-hover-color);
 }
 
 /* React DatePicker Customization */
