@@ -7,22 +7,9 @@ import ExtrasSelection from './steps/ExtrasSelection';
 import DateTimeSelection from './steps/DateTimeSelection';
 import PersonalInfo from './steps/PersonalInfo';
 import Summary from './steps/Summary';
-import { 
-  ShoppingBagIcon, 
-  PlusCircleIcon, 
-  CalendarDaysIcon, 
-  UserIcon, 
-  CheckCircleIcon 
-} from '@heroicons/react/24/outline';
 import { useLanguage } from '../contexts/LanguageContext';
 
-const STEPS = [
-  { id: 1, icon: ShoppingBagIcon },
-  { id: 2, icon: PlusCircleIcon },
-  { id: 3, icon: CalendarDaysIcon },
-  { id: 4, icon: UserIcon },
-  { id: 5, icon: CheckCircleIcon },
-];
+const STEPS = [1, 2, 3, 4, 5];
 
 const BookingForm = () => {
   const { translations } = useLanguage();
@@ -65,29 +52,6 @@ const BookingForm = () => {
       console.error('Error submitting form:', error);
       return Promise.reject(error);
     }
-  };
-
-  const renderProgressBar = () => {
-    return (
-      <div className="mb-8">
-        <div className="flex items-center justify-center space-x-4">
-          {STEPS.map(({ id, icon: Icon }) => (
-            <div
-              key={id}
-              className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                id === currentStep
-                  ? 'bg-blue-600 text-white'
-                  : id < currentStep
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gray-200 text-gray-400'
-              }`}
-            >
-              <Icon className="w-5 h-5" />
-            </div>
-          ))}
-        </div>
-      </div>
-    );
   };
 
   const renderStep = () => {
@@ -142,8 +106,7 @@ const BookingForm = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      {renderProgressBar()}
+    <div className="max-w-3xl px-4 py-8">
       {renderStep()}
     </div>
   );

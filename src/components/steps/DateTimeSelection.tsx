@@ -312,12 +312,12 @@ const DateTimeSelection = ({
                   key={date.toISOString()}
                   onClick={() => !isDisabled && handleDateChange(date)}
                   disabled={isDisabled}
-                  className={`p-2 text-center rounded-md transition-colors ${
+                  className={`date-button p-2 text-center rounded-md transition-colors ${
                     isDisabled
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      ? ''
                       : isSelected
-                      ? 'bg-blue-100 text-blue-700 font-semibold'
-                      : 'hover:bg-gray-50'
+                      ? 'selected'
+                      : ''
                   }`}
                 >
                   <div className="text-xs font-medium">
@@ -347,12 +347,12 @@ const DateTimeSelection = ({
                       key={timeSlot}
                       onClick={() => available && handleTimeSlotSelect(timeSlot)}
                       disabled={!available}
-                      className={`p-2 text-sm border rounded-md transition-colors ${
+                      className={`date-button p-2 text-sm rounded-md transition-colors ${
                         !available
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          ? ''
                           : formData.timeSlot === timeSlot
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : 'border-gray-300 hover:border-blue-300'
+                          ? 'selected'
+                          : ''
                       }`}
                     >
                       {timeSlot}

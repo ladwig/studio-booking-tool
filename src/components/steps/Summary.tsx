@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { BookingFormData } from '../../types/booking';
 import { useLanguage } from '../../contexts/LanguageContext';
+import BookingTerms from '../BookingTerms';
 
 interface SummaryProps {
   formData: BookingFormData;
@@ -15,6 +16,7 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
   const { translations } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('de-DE', {
@@ -46,10 +48,10 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
 
   if (isSubmitted) {
     return (
-      <div className="text-center py-8">
+      <div className="py-8">
         <div className="mb-4 text-green-600">
           <svg
-            className="mx-auto h-12 w-12"
+            className="h-12 w-12"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 48 48"
@@ -88,7 +90,10 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
       <div className="space-y-4">
         <div className="border rounded-lg p-4">
           <h3 className="font-semibold mb-2">{translations.booking.selectProduct}</h3>
-          <p>{formData.selectedProduct?.name} - {formatCurrency(formData.selectedProduct?.price || 0)}</p>
+          <div className="flex justify-between">
+            <span>{formData.selectedProduct?.name}</span>
+            <span>{formatCurrency(formData.selectedProduct?.price || 0)}</span>
+          </div>
         </div>
 
         {formData.selectedExtras?.length > 0 && (
@@ -147,9 +152,12 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
           />
           <label htmlFor="terms" className="text-sm text-gray-600">
             {translations.booking.iAcceptThe}{' '}
-            <a href="#" className="text-blue-600 hover:underline">
+            <button 
+              onClick={() => setIsTermsModalOpen(true)}
+              className="text-blue-600 hover:underline focus:outline-none"
+            >
               {translations.booking.bookingTerms}
-            </a>
+            </button>
           </label>
         </div>
       </div>
@@ -173,6 +181,11 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
           {isSubmitting ? translations.booking.submitting : translations.booking.confirmBooking}
         </button>
       </div>
+
+      <BookingTerms 
+        isOpen={isTermsModalOpen} 
+        onClose={() => setIsTermsModalOpen(false)} 
+      />
     </div>
   );
 };

@@ -6,62 +6,323 @@
 @tailwind utilities;
 
 :root {
-  background: transparent;
-  --font-family: inherit;
-  --text-color: inherit;
+  --bg-color: #0F0F0F;
+  --bg-card: #1A1A1A;
+  --bg-hover: #252525;
+  --bg-active: #2D2D2D;
+  --bg-selected: #1E293B;
+  --bg-overlay: rgba(0, 0, 0, 0.7);
+  
+  --text-primary: #FFFFFF;
+  --text-secondary: #A3A3A3;
+  --text-tertiary: #737373;
+  
+  --border-color: #262626;
+  --border-hover: #404040;
+  --border-selected: #3B82F6;
+  
   --primary-color: #2563eb;
-  --primary-hover-color: #1d4ed8;
+  --primary-hover: #1d4ed8;
+  --primary-active: #1e40af;
+  
+  --success-color: #22c55e;
+  --error-color: #ef4444;
 }
 
 body {
-  font-family: var(--font-family);
-  color: var(--text-color);
-  background: transparent;
+  color: var(--text-primary);
+  background: var(--bg-color);
+  font-family: inherit;
 }
 
+/* Cards and Containers */
+.border {
+  border-color: var(--border-color) !important;
+  background-color: var(--bg-card) !important;
+}
+
+.border:hover {
+  border-color: var(--border-hover) !important;
+}
+
+/* Text Colors */
+.text-gray-900 {
+  color: var(--text-primary) !important;
+}
+
+.text-gray-600 {
+  color: var(--text-secondary) !important;
+}
+
+/* Buttons */
 .bg-blue-600 {
-  background-color: var(--primary-color);
+  background-color: var(--primary-color) !important;
 }
 
 .hover\:bg-blue-700:hover {
-  background-color: var(--primary-hover-color);
+  background-color: var(--primary-hover) !important;
 }
 
-/* React DatePicker Customization */
-.react-datepicker-wrapper {
-  width: 100%;
+.hover\:bg-gray-100:hover {
+  background-color: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
 }
 
+button:disabled {
+  background-color: var(--bg-active) !important;
+  color: var(--text-tertiary) !important;
+}
+
+/* Form Elements */
+input, select, textarea {
+  color: var(--text-primary) !important;
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary-color) !important;
+  outline-color: var(--primary-color) !important;
+  background-color: var(--bg-hover) !important;
+}
+
+input::placeholder {
+  color: var(--text-tertiary) !important;
+}
+
+input[type="checkbox"] {
+  accent-color: var(--primary-color);
+}
+
+/* Links */
+a.text-blue-600 {
+  color: var(--primary-color) !important;
+}
+
+a.text-blue-600:hover {
+  color: var(--primary-hover) !important;
+}
+
+/* DatePicker Dark Theme */
 .react-datepicker {
-  font-family: inherit !important;
-  border-color: #e5e7eb !important;
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
 }
 
 .react-datepicker__header {
-  background-color: #f3f4f6 !important;
-  border-bottom-color: #e5e7eb !important;
+  background-color: var(--bg-hover) !important;
+  border-bottom-color: var(--border-color) !important;
 }
 
-.react-datepicker__current-month {
-  font-weight: 600 !important;
+.react-datepicker__day {
+  color: var(--text-primary) !important;
+  border-radius: 0.375rem !important;
+  margin: 0.2rem !important;
+  padding: 0.2rem !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  line-height: 1.6rem !important;
+}
+
+.react-datepicker__day:hover:not(.react-datepicker__day--disabled) {
+  background-color: var(--bg-hover) !important;
+  border-color: var(--border-hover) !important;
+  color: var(--text-primary) !important;
 }
 
 .react-datepicker__day--selected {
-  background-color: #2563eb !important;
+  background-color: var(--bg-selected) !important;
+  border: 1px solid var(--border-selected) !important;
+  color: var(--text-primary) !important;
 }
 
-.react-datepicker__day:hover {
-  background-color: #bfdbfe !important;
+.react-datepicker__day--selected:hover {
+  background-color: var(--bg-hover) !important;
+  border-color: var(--border-hover) !important;
 }
 
 .react-datepicker__day--disabled {
-  color: #9ca3af !important;
-}
-
-.react-datepicker__navigation {
-  top: 8px !important;
+  color: var(--text-tertiary) !important;
+  cursor: not-allowed !important;
 }
 
 .react-datepicker__day-name {
-  color: #4b5563 !important;
+  color: var(--text-secondary) !important;
+}
+
+.react-datepicker__current-month {
+  color: var(--text-primary) !important;
+}
+
+/* Success States */
+.text-green-600 {
+  color: var(--success-color) !important;
+}
+
+/* Error States */
+.text-red-600 {
+  color: var(--error-color) !important;
+}
+
+/* Selected States */
+.border.selected {
+  border-color: var(--border-selected) !important;
+  background-color: var(--bg-selected) !important;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-overlay);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+.modal-content {
+  background-color: var(--bg-card);
+  padding: 2rem;
+  border-radius: 0.5rem;
+  max-width: 90%;
+  width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  border: 1px solid var(--border-color);
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: var(--text-secondary);
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
+}
+
+/* Time Slot Button Improvements */
+button.time-slot {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+button.time-slot:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--border-hover);
+}
+
+button.time-slot.selected {
+  background-color: var(--bg-selected);
+  border-color: var(--border-selected);
+  color: var(--text-primary);
+}
+
+/* Improve DatePicker hover states */
+.react-datepicker__day:hover:not(.react-datepicker__day--disabled) {
+  background-color: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background-color: var(--bg-selected) !important;
+  border-color: var(--border-selected) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Product and Extra Cards */
+.product-card, .extra-card {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  padding-bottom: 3rem !important; /* Space for price */
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.product-card:hover:not(.selected), .extra-card:hover:not(.selected) {
+  border-color: var(--border-hover) !important;
+  background-color: var(--bg-hover) !important;
+}
+
+.product-card.selected, .extra-card.selected {
+  border-color: var(--border-selected) !important;
+  background-color: var(--bg-selected) !important;
+}
+
+.price-tag {
+  position: absolute !important;
+  bottom: 1rem !important;
+  right: 1rem !important;
+  font-weight: 600 !important;
+}
+
+/* Date Selection Buttons */
+.date-button {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.date-button:hover:not(:disabled):not(.selected) {
+  background-color: var(--bg-hover) !important;
+  border-color: var(--border-hover) !important;
+}
+
+.date-button.selected {
+  background-color: var(--bg-selected) !important;
+  border-color: var(--border-selected) !important;
+}
+
+.date-button:disabled {
+  background-color: var(--bg-card) !important;
+  color: var(--text-tertiary) !important;
+  cursor: not-allowed !important;
+  opacity: 0.5 !important;
+}
+
+/* Base Layout */
+.max-w-3xl {
+  margin-left: 0 !important;
+}
+
+/* Remove any center alignment */
+.text-center {
+  text-align: left !important;
+}
+
+.mx-auto {
+  margin-left: 0 !important;
+}
+
+.justify-center {
+  justify-content: flex-start !important;
+}
+
+/* DatePicker container alignment */
+.react-datepicker-wrapper,
+.react-datepicker-popper {
+  margin-left: 0 !important;
+}
+
+.transform.translate-x-1\/2 {
+  transform: none !important;
+}
+
+.left-1\/2 {
+  left: 0 !important;
 }

@@ -54,18 +54,16 @@ const ExtrasSelection = ({
           return (
             <div
               key={extra.id}
-              className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                isSelected
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-blue-300'
+              className={`extra-card border rounded-lg cursor-pointer transition-all ${
+                isSelected ? 'selected' : ''
               }`}
               onClick={() => handleExtraToggle(extra)}
             >
-              <h3 className="font-semibold text-lg">{extra.name}</h3>
-              <p className="text-gray-600 text-sm mt-1">{extra.description}</p>
-              <p className="text-blue-600 font-bold mt-2">
-                {formatCurrency(extra.price)}
-              </p>
+              <div className="p-4">
+                <h3 className="font-semibold text-lg">{extra.name}</h3>
+                <p className="text-gray-600 text-sm mt-1">{extra.description}</p>
+                <p className="price-tag">{formatCurrency(extra.price)}</p>
+              </div>
             </div>
           );
         })}

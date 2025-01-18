@@ -37,16 +37,16 @@ const ProductSelection = ({
         {PRODUCTS.map((product) => (
           <div
             key={product.id}
-            className={`p-4 border rounded-lg cursor-pointer transition-all ${
-              formData.selectedProduct?.id === product.id
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-200 hover:border-blue-300'
+            className={`product-card border rounded-lg cursor-pointer transition-all ${
+              formData.selectedProduct?.id === product.id ? 'selected' : ''
             }`}
             onClick={() => handleProductSelect(product)}
           >
-            <h3 className="font-semibold text-lg">{product.name}</h3>
-            <p className="text-gray-600 text-sm mt-1">{product.description}</p>
-            <p className="text-blue-600 font-bold mt-2">{formatCurrency(product.price)}</p>
+            <div className="p-4">
+              <h3 className="font-semibold text-lg">{product.name}</h3>
+              <p className="text-gray-600 text-sm mt-1">{product.description}</p>
+              <p className="price-tag">{formatCurrency(product.price)}</p>
+            </div>
           </div>
         ))}
       </div>

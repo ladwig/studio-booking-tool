@@ -20,7 +20,7 @@ export const STUDIO_SETTINGS = {
   },
 
   emailSettings: {
-    adminEmail: 'admin@qs1.studio',
+    adminEmail: 'info@qs1.studio',
     notificationSubject: 'New Studio Booking Request',
   }
 };
