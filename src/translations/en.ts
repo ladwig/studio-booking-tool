@@ -27,7 +27,7 @@ export const en = {
     phone: 'Phone',
     additionalNotes: 'Additional Notes',
     notesPlaceholder: 'Any special requests or additional information...',
-    bookingTerms: 'booking terms',
+    bookingTerms: 'Booking Terms & House Rules',
     iAcceptThe: 'I accept the',
     total: 'Total',
     confirmBooking: 'Confirm Booking',

@@ -44,9 +44,19 @@ const BookingForm = () => {
 
   const handleSubmit = async () => {
     try {
-      // Here you would typically make an API call to submit the booking
-      console.log('Form submitted:', formData);
-      // You can add your submission logic here
+      const response = await fetch('/api/booking/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit booking');
+      }
+
       return Promise.resolve();
     } catch (error) {
       console.error('Error submitting form:', error);

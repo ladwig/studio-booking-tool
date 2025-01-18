@@ -2,6 +2,7 @@ import { Product, Extra } from '../types/booking';
 
 export const STUDIO_SETTINGS = {
   timezone: 'Europe/Berlin',
+  defaultLanguage: 'en',
   operatingHours: {
     openingHour: 9, // 9 AM
     closingHour: 23, // 11 PM
@@ -20,9 +21,9 @@ export const STUDIO_SETTINGS = {
   },
 
   emailSettings: {
-    adminEmail: 'info@qs1.studio',
+    adminEmail: 'info@qs1.studio, daniel@qs1.studio, ladwig.daniel@icloud.com',
     notificationSubject: 'New Studio Booking Request',
-  }
+  },
 };
 
 export const PRODUCTS: Product[] = [

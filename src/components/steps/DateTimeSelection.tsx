@@ -286,7 +286,13 @@ const DateTimeSelection = ({
           {showDatePicker && (
             <div 
               ref={datePickerRef}
-              className="absolute z-10 bg-white shadow-lg rounded-lg p-4 border mt-2 left-1/2 transform -translate-x-1/2"
+              className="absolute z-10 bg-white shadow-lg rounded-lg p-4 border mt-2"
+              style={{ 
+                position: 'absolute',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: 'fit-content'
+              }}
             >
               <DatePicker
                 selected={selectedDate}

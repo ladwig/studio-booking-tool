@@ -3,58 +3,44 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { en } from '../translations/en';
 import { de } from '../translations/de';
+import { STUDIO_SETTINGS } from '../config/settings';
 
-type Translations = typeof en;
+type Language = 'en' | 'de';
 
 interface LanguageContextType {
-  language: string;
-  translations: Translations;
-  setLanguage: (lang: string) => void;
+  language: Language;
+  translations: typeof en;
+  setLanguage: (lang: Language) => void;
 }
 
-const translations = {
-  en,
-  de,
-};
-
 const LanguageContext = createContext<LanguageContextType>({
-  language: 'en',
+  language: STUDIO_SETTINGS.defaultLanguage as Language,
   translations: en,
   setLanguage: () => {},
 });
 
-export const useLanguage = () => useContext(LanguageContext);
-
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
-  const [language, setLanguageState] = useState('en');
-
-  const setLanguage = (newLang: string) => {
-    console.log('Setting language to:', newLang);
-    setLanguageState(newLang);
-  };
+  const [language, setLanguage] = useState<Language>(STUDIO_SETTINGS.defaultLanguage as Language);
+  const [translations, setTranslations] = useState(en);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // Get browser language
-    const browserLang = navigator.language.split('-')[0];
-    console.log('Browser language detected:', browserLang);
-    // Set language if we support it
-    if (browserLang in translations) {
-      console.log('Setting initial language to:', browserLang);
-      setLanguage(browserLang);
-    }
+    setIsClient(true);
   }, []);
 
-  const value = {
-    language,
-    translations: translations[language as keyof typeof translations],
-    setLanguage,
-  };
+  useEffect(() => {
+    setTranslations(language === 'de' ? de : en);
+  }, [language]);
 
-  console.log('Current language context:', value);
+  if (!isClient) {
+    return null;
+  }
 
   return (
-    <LanguageContext.Provider value={value}>
+    <LanguageContext.Provider value={{ language, translations, setLanguage }}>
       {children}
     </LanguageContext.Provider>
   );
-}; 
+};
+
+export const useLanguage = () => useContext(LanguageContext); 
