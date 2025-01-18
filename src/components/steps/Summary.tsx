@@ -49,32 +49,22 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
   if (isSubmitted) {
     return (
       <div className="py-8">
-        <div className="mb-4 text-green-600">
-          <svg
-            className="h-12 w-12"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 48 48"
+        <div className="mb-4 text-center">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24"
+            className="w-16 h-16 text-green-600 mx-auto"
           >
-            <circle
-              className="opacity-25"
-              cx="24"
-              cy="24"
-              r="20"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
+            <path 
               fill="currentColor"
-              d="M14 24l8 8 16-16"
+              d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
             />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">
           {translations.booking.submitted}
         </h2>
-        <p className="text-gray-600">
+        <p className="text-gray-600 text-center">
           {translations.booking.bookingSuccess}
         </p>
       </div>

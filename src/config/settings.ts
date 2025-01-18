@@ -21,29 +21,29 @@ export const STUDIO_SETTINGS = {
   },
 
   emailSettings: {
-    adminEmail: 'info@qs1.studio, daniel@qs1.studio, ladwig.daniel@icloud.com',
-    notificationSubject: 'New Studio Booking Request',
+    adminEmail: 'info@qs1.studio, ladwig.daniel@icloud.com',
+    notificationSubject: 'New Studio A Booking Request',
   },
 };
 
 export const PRODUCTS: Product[] = [
   {
     id: '1',
-    name: 'Studio Rental 1h',
+    name: 'Studio A - 1h',
     price: 75,
     description: 'One hour studio rental with basic equipment',
     duration: 1,
   },
   {
     id: '2',
-    name: 'Half Day',
-    price: 250,
+    name: 'Studio A - Half Day',
+    price: 275,
     description: '4 hours studio rental with basic equipment',
     duration: 4,
   },
   {
     id: '3',
-    name: 'Full Day',
+    name: 'Studio A - Full Day',
     price: 450,
     description: '8 hours studio rental with basic equipment',
     duration: 8,
@@ -60,13 +60,7 @@ export const EXTRAS: Extra[] = [
   {
     id: '2',
     name: 'Color Backdrop',
-    price: 25,
-    description: 'Professional seamless paper backdrop in various colors',
-  },
-  {
-    id: '3',
-    name: 'Professional Lighting Kit',
-    price: 75,
-    description: 'Additional professional lighting setup',
-  },
+    price: 9,
+    description: 'Varying color backdrops, while price is per used meter',
+  }
 ]; 

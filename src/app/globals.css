@@ -27,12 +27,15 @@
   
   --success-color: #22c55e;
   --error-color: #ef4444;
+
+  /* Font settings */
+  font-family: var(--font-family, inherit);
 }
 
 body {
   color: var(--text-primary);
   background: var(--bg-color);
-  font-family: inherit;
+  font-family: var(--font-family, inherit);
 }
 
 /* Cards and Containers */

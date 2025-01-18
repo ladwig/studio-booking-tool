@@ -45,14 +45,20 @@
 
       // Pass styles to iframe
       const updateIframeStyles = () => {
+        // Get computed styles from the parent document
         const computedStyle = window.getComputedStyle(document.body);
+        const fontFamily = computedStyle.fontFamily;
+        const textColor = computedStyle.color;
+
+        // Create CSS variables for the iframe
         const styles = {
-          '--font-family': this.config.theme.fontFamily || computedStyle.fontFamily,
-          '--text-color': this.config.theme.textColor || computedStyle.color,
+          '--font-family': this.config.theme.fontFamily === 'inherit' ? fontFamily : this.config.theme.fontFamily,
+          '--text-color': this.config.theme.textColor === 'inherit' ? textColor : this.config.theme.textColor,
           '--primary-color': this.config.theme.primaryColor,
           '--primary-hover-color': this.config.theme.primaryHoverColor,
         };
 
+        // Send styles to iframe
         iframe.contentWindow.postMessage({
           type: 'UPDATE_STYLES',
           styles

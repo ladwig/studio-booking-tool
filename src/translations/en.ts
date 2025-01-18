@@ -14,7 +14,7 @@ export const en = {
     reviewAndConfirm: 'Review & Confirm',
   },
   booking: {
-    selectProduct: 'Select a Product',
+    selectProduct: 'Booking Options',
     additionalServices: 'Additional Services',
     dateAndTime: 'Date & Time',
     selectDate: 'Select Date',
