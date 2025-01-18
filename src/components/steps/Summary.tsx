@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BookingFormData } from '../../types/booking';
 import { useLanguage } from '../../contexts/LanguageContext';
 import BookingTerms from '../BookingTerms';
@@ -17,6 +17,11 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('de-DE', {
@@ -45,6 +50,10 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
       setIsSubmitting(false);
     }
   };
+
+  if (!mounted) {
+    return null;
+  }
 
   if (isSubmitted) {
     return (
