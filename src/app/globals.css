@@ -30,6 +30,23 @@
 
   /* Font settings */
   font-family: var(--font-family, inherit);
+  --text-color: inherit;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-family);
+    color: var(--text-color);
+  }
+
+  body {
+    font-family: inherit;
+    color: inherit;
+  }
+
+  * {
+    font-family: inherit;
+  }
 }
 
 body {

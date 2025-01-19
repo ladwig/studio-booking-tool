@@ -45,17 +45,27 @@
 
       // Pass styles to iframe
       const updateIframeStyles = () => {
-        // Get computed styles from the parent document
+        // Get all computed styles from the parent document
         const computedStyle = window.getComputedStyle(document.body);
-        const fontFamily = computedStyle.fontFamily;
-        const textColor = computedStyle.color;
+        
+        // Get the actual computed font family
+        const fontFamily = this.config.theme.fontFamily === 'inherit' 
+          ? computedStyle.fontFamily
+          : this.config.theme.fontFamily;
 
-        // Create CSS variables for the iframe
+        // Get the actual computed text color
+        const textColor = this.config.theme.textColor === 'inherit'
+          ? computedStyle.color
+          : this.config.theme.textColor;
+
+        // Create CSS variables
         const styles = {
-          '--font-family': this.config.theme.fontFamily === 'inherit' ? fontFamily : this.config.theme.fontFamily,
-          '--text-color': this.config.theme.textColor === 'inherit' ? textColor : this.config.theme.textColor,
+          '--font-family': fontFamily,
+          '--text-color': textColor,
           '--primary-color': this.config.theme.primaryColor,
           '--primary-hover-color': this.config.theme.primaryHoverColor,
+          // Add explicit font-family rule
+          'font-family': fontFamily
         };
 
         // Send styles to iframe
@@ -67,7 +77,11 @@
 
       // Update styles initially and on window resize
       window.addEventListener('resize', updateIframeStyles);
-      iframe.addEventListener('load', updateIframeStyles);
+      iframe.addEventListener('load', () => {
+        updateIframeStyles();
+        // Reapply styles after a short delay to ensure they're applied
+        setTimeout(updateIframeStyles, 100);
+      });
 
       // Handle iframe height adjustments
       window.addEventListener('message', (event) => {
