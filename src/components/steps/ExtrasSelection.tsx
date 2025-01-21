@@ -1,7 +1,7 @@
 'use client';
 
 import { BookingFormData, Extra } from '../../types/booking';
-import { EXTRAS } from '../../config/settings';
+import { EXTRAS, STUDIO_SETTINGS } from '../../config/settings';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ExtrasSelectionProps {
@@ -18,6 +18,7 @@ const ExtrasSelection = ({
   onBack,
 }: ExtrasSelectionProps) => {
   const { translations } = useLanguage();
+  const isDiscountEnabled = STUDIO_SETTINGS.discountMode.enabled;
 
   const handleExtraToggle = (extra: Extra) => {
     const currentExtras = formData.selectedExtras || [];
@@ -62,7 +63,25 @@ const ExtrasSelection = ({
               <div className="p-4">
                 <h3 className="font-semibold text-lg">{extra.name}</h3>
                 <p className="text-gray-600 text-sm mt-1">{extra.description}</p>
-                <p className="price-tag">{formatCurrency(extra.price)}</p>
+                <div className="price-tag text-right">
+                  {isDiscountEnabled && extra.discountPrice ? (
+                    <div className="flex flex-col items-end">
+                      <div className="text-sm text-green-600 font-medium mb-1">
+                        {translations.booking.discount.label}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-500 line-through text-sm">
+                          {formatCurrency(extra.price)}
+                        </span>
+                        <span className="text-green-600 font-semibold">
+                          {formatCurrency(extra.discountPrice)}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <span>{formatCurrency(extra.price)}</span>
+                  )}
+                </div>
               </div>
             </div>
           );

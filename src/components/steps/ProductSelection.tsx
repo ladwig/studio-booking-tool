@@ -1,7 +1,7 @@
 'use client';
 
 import { BookingFormData, Product } from '../../types/booking';
-import { PRODUCTS } from '../../config/settings';
+import { PRODUCTS, STUDIO_SETTINGS } from '../../config/settings';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ProductSelectionProps {
@@ -16,6 +16,7 @@ const ProductSelection = ({
   onNext,
 }: ProductSelectionProps) => {
   const { translations } = useLanguage();
+  const isDiscountEnabled = STUDIO_SETTINGS.discountMode.enabled;
 
   const handleProductSelect = (product: Product) => {
     updateFormData({ selectedProduct: product });
@@ -45,7 +46,25 @@ const ProductSelection = ({
             <div className="p-4">
               <h3 className="font-semibold text-lg">{product.name}</h3>
               <p className="text-gray-600 text-sm mt-1">{product.description}</p>
-              <p className="price-tag">{formatCurrency(product.price)}</p>
+              <div className="price-tag text-right">
+                {isDiscountEnabled && product.discountPrice ? (
+                  <div className="flex flex-col items-end">
+                    <div className="text-sm text-green-600 font-medium mb-1">
+                      {translations.booking.discount.label}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-500 line-through text-sm">
+                        {formatCurrency(product.price)}
+                      </span>
+                      <span className="text-green-600 font-semibold">
+                        {formatCurrency(product.discountPrice)}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <span>{formatCurrency(product.price)}</span>
+                )}
+              </div>
             </div>
           </div>
         ))}

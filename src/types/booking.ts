@@ -2,6 +2,7 @@ export interface Product {
   id: string;
   name: string;
   price: number;
+  discountPrice?: number;
   description: string;
   duration: number;
 }
@@ -10,6 +11,7 @@ export interface Extra {
   id: string;
   name: string;
   price: number;
+  discountPrice?: number;
   description: string;
 }
 
@@ -22,11 +24,17 @@ export interface PersonalInfo {
 }
 
 export interface BookingFormData {
-  selectedProduct: Product | undefined;
-  selectedExtras: Extra[];
-  date: Date | undefined;
+  selectedProduct?: Product;
+  selectedExtras?: Extra[];
+  date?: Date;
   timeSlot: string;
-  personalInfo: PersonalInfo;
+  personalInfo: {
+    firstName: string;
+    lastName: string;
+    company: string;
+    email: string;
+    phone: string;
+  };
   note: string;
   termsAccepted: boolean;
 }

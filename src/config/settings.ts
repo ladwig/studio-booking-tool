@@ -24,13 +24,18 @@ export const STUDIO_SETTINGS = {
     adminEmail: 'info@qs1.studio, ladwig.daniel@icloud.com',
     notificationSubject: 'New Studio A Booking Request',
   },
+
+  discountMode: {
+    enabled: true, // Whether discount prices are active
+  },
 };
 
 export const PRODUCTS: Product[] = [
   {
     id: '1',
     name: 'Studio A - 1h',
-    price: 75,
+    price: 80,
+    discountPrice: 60,
     description: 'One hour studio rental with basic equipment',
     duration: 1,
   },
@@ -38,6 +43,7 @@ export const PRODUCTS: Product[] = [
     id: '2',
     name: 'Studio A - Half Day',
     price: 275,
+    discountPrice: 205,
     description: '4 hours studio rental with basic equipment',
     duration: 4,
   },
@@ -45,6 +51,7 @@ export const PRODUCTS: Product[] = [
     id: '3',
     name: 'Studio A - Full Day',
     price: 450,
+    discountPrice: 338,
     description: '8 hours studio rental with basic equipment',
     duration: 8,
   },
@@ -55,12 +62,14 @@ export const EXTRAS: Extra[] = [
     id: '1',
     name: 'Tech Support',
     price: 50,
+    discountPrice: 40,
     description: 'Professional technical support during your session',
   },
   {
     id: '2',
     name: 'Color Backdrop',
     price: 9,
+    discountPrice: 7,
     description: 'Varying color backdrops, while price is per used meter',
   }
 ]; 

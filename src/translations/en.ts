@@ -2,6 +2,8 @@ export const en = {
   common: {
     next: 'Next',
     back: 'Back',
+    save: 'Save',
+    cancel: 'Cancel',
     confirm: 'Confirm',
     required: 'Required',
     loading: 'Loading...',
@@ -14,7 +16,7 @@ export const en = {
     reviewAndConfirm: 'Review & Confirm',
   },
   booking: {
-    selectProduct: 'Booking Options',
+    selectProduct: 'Select Product',
     additionalServices: 'Additional Services',
     dateAndTime: 'Date & Time',
     selectDate: 'Select Date',
@@ -27,19 +29,25 @@ export const en = {
     phone: 'Phone',
     additionalNotes: 'Additional Notes',
     notesPlaceholder: 'Any special requests or additional information...',
-    bookingTerms: 'Booking Terms & House Rules',
+    bookingTerms: 'Booking Terms',
     iAcceptThe: 'I accept the',
     total: 'Total',
     confirmBooking: 'Confirm Booking',
     submitting: 'Submitting...',
-    submitted: 'Submitted',
-    bookingSuccess: 'Booking submitted successfully! We\'ll contact you shortly to confirm your booking.',
+    submitted: 'Booking Submitted!',
+    bookingSuccess: 'Thank you for your booking request. We will contact you shortly to confirm your reservation.',
+    discount: {
+      label: 'Special Offer',
+      save: 'Save {amount}',
+      originalPrice: 'Original price:',
+      discountPrice: 'Special price:'
+    }
   },
   calendar: {
     previousWeek: 'Previous Week',
     nextWeek: 'Next Week',
-    noTimeSlots: 'No available time slots for this date',
-    advanceBookingNotice: 'Bookings must be made at least {hours} hours in advance',
+    noTimeSlots: 'No time slots available for this day.',
+    advanceBookingNotice: 'Please note: Bookings must be made at least {hours} hours in advance.',
   },
   weekdays: {
     monday: 'Mon',

@@ -5,6 +5,8 @@ export const de = {
     confirm: 'Bestätigen',
     required: 'Erforderlich',
     loading: 'Wird geladen...',
+    save: 'Speichern',
+    cancel: 'Abbrechen',
   },
   steps: {
     selectService: 'Service auswählen',
@@ -15,7 +17,7 @@ export const de = {
   },
   booking: {
     selectProduct: 'Produkt auswählen',
-    additionalServices: 'Zusätzliche Services',
+    additionalServices: 'Zusätzliche Leistungen',
     dateAndTime: 'Datum & Uhrzeit',
     selectDate: 'Datum auswählen',
     availableTimeSlots: 'Verfügbare Zeitfenster für',
@@ -25,21 +27,27 @@ export const de = {
     company: 'Firma',
     email: 'E-Mail',
     phone: 'Telefon',
-    additionalNotes: 'Zusätzliche Notizen',
+    additionalNotes: 'Zusätzliche Anmerkungen',
     notesPlaceholder: 'Besondere Wünsche oder zusätzliche Informationen...',
     bookingTerms: 'Buchungsbedingungen',
     iAcceptThe: 'Ich akzeptiere die',
     total: 'Gesamt',
     confirmBooking: 'Buchung bestätigen',
     submitting: 'Wird gesendet...',
-    submitted: 'Gesendet',
-    bookingSuccess: 'Buchung erfolgreich übermittelt! Wir werden uns in Kürze mit der Bestätigung bei Ihnen melden.',
+    submitted: 'Buchung eingereicht!',
+    bookingSuccess: 'Vielen Dank für Ihre Buchungsanfrage. Wir werden uns in Kürze mit Ihnen in Verbindung setzen.',
+    discount: {
+      label: 'Sonderangebot',
+      save: 'Spare {amount}',
+      originalPrice: 'Originalpreis:',
+      discountPrice: 'Sonderpreis:'
+    }
   },
   calendar: {
     previousWeek: 'Vorherige Woche',
     nextWeek: 'Nächste Woche',
-    noTimeSlots: 'Keine verfügbaren Zeitfenster für dieses Datum',
-    advanceBookingNotice: 'Buchungen müssen mindestens {hours} Stunden im Voraus erfolgen',
+    noTimeSlots: 'Keine Zeitfenster an diesem Tag verfügbar.',
+    advanceBookingNotice: 'Bitte beachten: Buchungen müssen mindestens {hours} Stunden im Voraus erfolgen.',
   },
   weekdays: {
     monday: 'Mo',
