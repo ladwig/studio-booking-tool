@@ -1,6 +1,6 @@
 'use client';
 
-import { BookingFormData, Product } from '../../types/booking';
+import { BookingFormData, Product, SelectedProduct } from '../../types/booking';
 import { PRODUCTS, STUDIO_SETTINGS } from '../../config/settings';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -18,8 +18,30 @@ const ProductSelection = ({
   const { translations } = useLanguage();
   const isDiscountEnabled = STUDIO_SETTINGS.discountMode.enabled;
 
-  const handleProductSelect = (product: Product) => {
-    updateFormData({ selectedProduct: product });
+  const handleProductSelect = (product: Product, quantity: number = 1) => {
+    if (quantity === 0) {
+      updateFormData({ selectedProduct: undefined });
+    } else {
+      const selectedProduct: SelectedProduct = {
+        ...product,
+        quantity,
+        // Update the duration based on quantity for products that allow quantity
+        duration: product.allowQuantity ? product.duration * quantity : product.duration
+      };
+      updateFormData({ selectedProduct: selectedProduct });
+    }
+  };
+
+  const handleQuantityChange = (product: Product, quantity: number) => {
+    handleProductSelect(product, quantity);
+  };
+
+  const handleCardClick = (product: Product, isSelected: boolean) => {
+    if (isSelected) {
+      updateFormData({ selectedProduct: undefined });
+    } else {
+      handleProductSelect(product);
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -31,43 +53,74 @@ const ProductSelection = ({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">
+      <h2 className="text-2xl font-bold text-white">
         {translations.booking.selectProduct}
       </h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {PRODUCTS.map((product) => (
-          <div
-            key={product.id}
-            className={`product-card border rounded-lg cursor-pointer transition-all ${
-              formData.selectedProduct?.id === product.id ? 'selected' : ''
-            }`}
-            onClick={() => handleProductSelect(product)}
-          >
-            <div className="p-4">
-              <h3 className="font-semibold text-lg">{product.name}</h3>
-              <p className="text-gray-600 text-sm mt-1">{product.description}</p>
-              <div className="price-tag text-right">
-                {isDiscountEnabled && product.discountPrice ? (
-                  <div className="flex flex-col items-end">
-                    <div className="text-sm text-green-600 font-medium mb-1">
-                      {translations.booking.discount.label}
+        {PRODUCTS.map((product) => {
+          const selectedProduct = formData.selectedProduct;
+          const isSelected = selectedProduct?.id === product.id;
+          const currentQuantity = (isSelected && selectedProduct?.quantity) || 0;
+          const maxQuantity = product.maxQuantity || 8;
+          const hasDiscount = isDiscountEnabled && product.discountPrice && product.discountPrice < product.price;
+          const quantity = product.allowQuantity ? currentQuantity || 1 : 1;
+
+          return (
+            <div
+              key={product.id}
+              className={`product-card border rounded-lg cursor-pointer transition-all ${
+                isSelected ? 'selected' : ''
+              }`}
+              onClick={() => handleCardClick(product, isSelected)}
+            >
+              <div className="p-4">
+                <div>
+                  <h3 className="font-semibold text-lg text-white">{product.name}</h3>
+                  <p className="text-gray-400 text-sm mt-1">{product.description}</p>
+                </div>
+                <div className="flex justify-between items-end mt-4">
+                  {product.allowQuantity && (
+                    <div 
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <select
+                        value={currentQuantity}
+                        onChange={(e) => handleQuantityChange(product, Number(e.target.value))}
+                        className="block w-16 text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-white bg-transparent"
+                      >
+                        <option value="0" className="bg-gray-800">0</option>
+                        {Array.from({ length: maxQuantity }, (_, i) => i + 1).map((num) => (
+                          <option key={num} value={num} className="bg-gray-800">
+                            {num}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-500 line-through text-sm">
-                        {formatCurrency(product.price)}
-                      </span>
-                      <span className="text-green-600 font-semibold">
-                        {formatCurrency(product.discountPrice)}
-                      </span>
-                    </div>
+                  )}
+                  <div className="price-tag">
+                    {hasDiscount ? (
+                      <div className="flex flex-col items-end">
+                        <div className="text-sm text-green-600 font-medium mb-1">
+                          {translations.booking.discount.label}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-500 line-through text-sm">
+                            {formatCurrency(product.price * quantity)}
+                          </span>
+                          <span className="text-green-600 font-semibold">
+                            {formatCurrency(product.discountPrice! * quantity)}
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-white">{formatCurrency(product.price * quantity)}</span>
+                    )}
                   </div>
-                ) : (
-                  <span>{formatCurrency(product.price)}</span>
-                )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       <div className="flex justify-end mt-6">
         <button

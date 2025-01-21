@@ -5,6 +5,9 @@ export interface Product {
   discountPrice?: number;
   description: string;
   duration: number;
+  allowQuantity: boolean;
+  maxQuantity?: number;
+  isMandatory?: boolean;
 }
 
 export interface Extra {
@@ -13,6 +16,16 @@ export interface Extra {
   price: number;
   discountPrice?: number;
   description: string;
+  allowQuantity?: boolean;
+  maxQuantity?: number;
+}
+
+export interface SelectedExtra extends Omit<Extra, 'quantity'> {
+  quantity: number;
+}
+
+export interface SelectedProduct extends Omit<Product, 'quantity'> {
+  quantity: number;
 }
 
 export interface PersonalInfo {
@@ -24,8 +37,8 @@ export interface PersonalInfo {
 }
 
 export interface BookingFormData {
-  selectedProduct?: Product;
-  selectedExtras?: Extra[];
+  selectedProduct?: SelectedProduct;
+  selectedExtras?: SelectedExtra[];
   date?: Date;
   timeSlot: string;
   personalInfo: {

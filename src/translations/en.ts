@@ -18,6 +18,7 @@ export const en = {
   booking: {
     selectProduct: 'Select Product',
     additionalServices: 'Additional Services',
+    mandatoryServices: 'Mandatory Services',
     dateAndTime: 'Date & Time',
     selectDate: 'Select Date',
     availableTimeSlots: 'Available Time Slots for',
@@ -29,13 +30,14 @@ export const en = {
     phone: 'Phone',
     additionalNotes: 'Additional Notes',
     notesPlaceholder: 'Any special requests or additional information...',
-    bookingTerms: 'Booking Terms',
+    bookingTerms: 'Booking Terms and House Rules',
     iAcceptThe: 'I accept the',
     total: 'Total',
     confirmBooking: 'Confirm Booking',
     submitting: 'Submitting...',
     submitted: 'Booking Submitted!',
     bookingSuccess: 'Thank you for your booking request. We will contact you shortly to confirm your reservation.',
+    pricesExcludeVAT: 'All prices exclude VAT',
     discount: {
       label: 'Special Offer',
       save: 'Save {amount}',

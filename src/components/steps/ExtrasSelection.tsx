@@ -1,6 +1,6 @@
 'use client';
 
-import { BookingFormData, Extra } from '../../types/booking';
+import { BookingFormData, Extra, SelectedExtra } from '../../types/booking';
 import { EXTRAS, STUDIO_SETTINGS } from '../../config/settings';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -20,18 +20,44 @@ const ExtrasSelection = ({
   const { translations } = useLanguage();
   const isDiscountEnabled = STUDIO_SETTINGS.discountMode.enabled;
 
-  const handleExtraToggle = (extra: Extra) => {
+  const handleExtraSelect = (extra: Extra, quantity: number = 1) => {
     const currentExtras = formData.selectedExtras || [];
-    const isSelected = currentExtras.some((e) => e.id === extra.id);
-
-    if (isSelected) {
+    
+    if (quantity === 0) {
       updateFormData({
         selectedExtras: currentExtras.filter((e) => e.id !== extra.id),
       });
     } else {
+      const newExtra: SelectedExtra = {
+        ...extra,
+        quantity,
+      };
+      const existingIndex = currentExtras.findIndex((e) => e.id === extra.id);
+      
+      if (existingIndex >= 0) {
+        updateFormData({
+          selectedExtras: [
+            ...currentExtras.slice(0, existingIndex),
+            newExtra,
+            ...currentExtras.slice(existingIndex + 1),
+          ],
+        });
+      } else {
+        updateFormData({
+          selectedExtras: [...currentExtras, newExtra],
+        });
+      }
+    }
+  };
+
+  const handleCardClick = (extra: Extra, isSelected: boolean) => {
+    if (isSelected) {
+      const currentExtras = formData.selectedExtras || [];
       updateFormData({
-        selectedExtras: [...currentExtras, extra],
+        selectedExtras: currentExtras.filter((e) => e.id !== extra.id),
       });
+    } else {
+      handleExtraSelect(extra);
     }
   };
 
@@ -44,43 +70,71 @@ const ExtrasSelection = ({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">
+      <h2 className="text-2xl font-bold text-white">
         {translations.booking.additionalServices}
       </h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {EXTRAS.map((extra) => {
-          const isSelected = formData.selectedExtras?.some(
+          const selectedExtra = formData.selectedExtras?.find(
             (e) => e.id === extra.id
           );
+          const isSelected = !!selectedExtra;
+          const currentQuantity = (isSelected && selectedExtra?.quantity) || 0;
+          const maxQuantity = extra.maxQuantity || 8;
+          const hasDiscount = isDiscountEnabled && extra.discountPrice && extra.discountPrice < extra.price;
+          const quantity = extra.allowQuantity ? currentQuantity || 1 : 1;
+
           return (
             <div
               key={extra.id}
               className={`extra-card border rounded-lg cursor-pointer transition-all ${
                 isSelected ? 'selected' : ''
               }`}
-              onClick={() => handleExtraToggle(extra)}
+              onClick={() => handleCardClick(extra, isSelected)}
             >
               <div className="p-4">
-                <h3 className="font-semibold text-lg">{extra.name}</h3>
-                <p className="text-gray-600 text-sm mt-1">{extra.description}</p>
-                <div className="price-tag text-right">
-                  {isDiscountEnabled && extra.discountPrice ? (
-                    <div className="flex flex-col items-end">
-                      <div className="text-sm text-green-600 font-medium mb-1">
-                        {translations.booking.discount.label}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-500 line-through text-sm">
-                          {formatCurrency(extra.price)}
-                        </span>
-                        <span className="text-green-600 font-semibold">
-                          {formatCurrency(extra.discountPrice)}
-                        </span>
-                      </div>
+                <div>
+                  <h3 className="font-semibold text-lg text-white">{extra.name}</h3>
+                  <p className="text-gray-400 text-sm mt-1">{extra.description}</p>
+                </div>
+                <div className="flex justify-between items-end mt-4">
+                  {extra.allowQuantity && (
+                    <div 
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <select
+                        value={currentQuantity}
+                        onChange={(e) => handleExtraSelect(extra, Number(e.target.value))}
+                        className="block w-16 text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-white bg-transparent"
+                      >
+                        <option value="0" className="bg-gray-800">0</option>
+                        {Array.from({ length: maxQuantity }, (_, i) => i + 1).map((num) => (
+                          <option key={num} value={num} className="bg-gray-800">
+                            {num}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                  ) : (
-                    <span>{formatCurrency(extra.price)}</span>
                   )}
+                  <div className="price-tag">
+                    {hasDiscount ? (
+                      <div className="flex flex-col items-end">
+                        <div className="text-sm text-green-600 font-medium mb-1">
+                          {translations.booking.discount.label}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-500 line-through text-sm">
+                            {formatCurrency(extra.price * quantity)}
+                          </span>
+                          <span className="text-green-600 font-semibold">
+                            {formatCurrency(extra.discountPrice! * quantity)}
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-white">{formatCurrency(extra.price * quantity)}</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -90,7 +144,7 @@ const ExtrasSelection = ({
       <div className="flex justify-between mt-6">
         <button
           onClick={onBack}
-          className="px-6 py-2 rounded-md text-gray-600 hover:bg-gray-100"
+          className="px-6 py-2 rounded-md text-white hover:bg-gray-100"
         >
           {translations.common.back}
         </button>
