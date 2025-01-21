@@ -47,10 +47,10 @@ const formatCurrency = (amount: number) => {
 
 const calculateTotal = (formData: BookingFormData): number => {
   const productPrice = formData.selectedProduct?.price || 0;
-  const extrasTotal = formData.selectedExtras.reduce(
+  const extrasTotal = formData.selectedExtras?.reduce(
     (sum, extra) => sum + extra.price,
     0
-  );
+  ) || 0;
   return productPrice + extrasTotal;
 };
 
@@ -76,7 +76,7 @@ export const sendBookingNotification = async (formData: BookingFormData) => {
         ${formatCurrency(formData.selectedProduct?.price || 0)}
       </p>
       
-      ${formData.selectedExtras.length > 0 ? `
+      ${formData.selectedExtras && formData.selectedExtras.length > 0 ? `
         <h3>Additional Services</h3>
         <ul>
           ${formData.selectedExtras.map(extra => `
