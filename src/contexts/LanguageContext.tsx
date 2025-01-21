@@ -6,10 +6,11 @@ import { de } from '../translations/de';
 import { STUDIO_SETTINGS } from '../config/settings';
 
 type Language = 'en' | 'de';
+type Translations = typeof en;
 
 interface LanguageContextType {
   language: Language;
-  translations: typeof en;
+  translations: Translations;
   setLanguage: (lang: Language) => void;
 }
 
@@ -21,7 +22,7 @@ const LanguageContext = createContext<LanguageContextType>({
 
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
   const [language, setLanguage] = useState<Language>(STUDIO_SETTINGS.defaultLanguage as Language);
-  const [translations, setTranslations] = useState(en);
+  const [translations, setTranslations] = useState<Translations>(en);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {

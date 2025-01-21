@@ -18,6 +18,7 @@ export const de = {
   booking: {
     selectProduct: 'Produkt auswählen',
     additionalServices: 'Zusätzliche Leistungen',
+    mandatoryServices: 'Pflichtleistungen',
     dateAndTime: 'Datum & Uhrzeit',
     selectDate: 'Datum auswählen',
     availableTimeSlots: 'Verfügbare Zeitfenster für',
@@ -36,6 +37,7 @@ export const de = {
     submitting: 'Wird gesendet...',
     submitted: 'Buchung eingereicht!',
     bookingSuccess: 'Vielen Dank für Ihre Buchungsanfrage. Wir werden uns in Kürze mit Ihnen in Verbindung setzen.',
+    pricesExcludeVAT: 'Alle Preise zzgl. MwSt.',
     discount: {
       label: 'Sonderangebot',
       save: 'Spare {amount}',
