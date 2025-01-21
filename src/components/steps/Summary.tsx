@@ -36,19 +36,23 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
     let total = 0;
     
     // Add selected product price
-    if (isDiscountEnabled && formData.selectedProduct?.discountPrice) {
-      total += formData.selectedProduct.discountPrice;
-    } else {
-      total += formData.selectedProduct?.price || 0;
+    if (formData.selectedProduct) {
+      const quantity = formData.selectedProduct.quantity || 1;
+      if (isDiscountEnabled && formData.selectedProduct.discountPrice) {
+        total += formData.selectedProduct.discountPrice * quantity;
+      } else {
+        total += formData.selectedProduct.price * quantity;
+      }
     }
 
     // Add extras total
     if (formData.selectedExtras?.length) {
       total += formData.selectedExtras.reduce((sum, extra) => {
+        const quantity = extra.quantity || 1;
         if (isDiscountEnabled && extra.discountPrice) {
-          return sum + (extra.discountPrice * extra.quantity);
+          return sum + (extra.discountPrice * quantity);
         }
-        return sum + (extra.price * extra.quantity);
+        return sum + (extra.price * quantity);
       }, 0);
     }
 
@@ -59,8 +63,20 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
   };
 
   const calculateSavings = () => {
-    const regularTotal = (formData.selectedProduct?.price || 0) +
-      (formData.selectedExtras?.reduce((sum, extra) => sum + (extra.price * extra.quantity), 0) || 0);
+    let regularTotal = 0;
+    
+    // Regular product price
+    if (formData.selectedProduct) {
+      const quantity = formData.selectedProduct.quantity || 1;
+      regularTotal += formData.selectedProduct.price * quantity;
+    }
+    
+    // Regular extras price
+    regularTotal += formData.selectedExtras?.reduce(
+      (sum, extra) => sum + (extra.price * (extra.quantity || 1)), 
+      0
+    ) || 0;
+    
     const discountTotal = calculateTotal();
     return regularTotal - discountTotal;
   };
@@ -117,20 +133,27 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
           <h3 className="font-semibold mb-2 text-white">{translations.booking.selectProduct}</h3>
           <div className="flex justify-between items-start">
             <div>
-              <span className="text-white">{formData.selectedProduct?.name}</span>
+              <span className="text-white">
+                {formData.selectedProduct?.name}
+                {formData.selectedProduct?.quantity && formData.selectedProduct.quantity > 1 
+                  ? ` (${formData.selectedProduct.quantity}x)` 
+                  : ''}
+              </span>
               <p className="text-gray-400 text-sm mt-1">{formData.selectedProduct?.description}</p>
             </div>
             {isDiscountEnabled && formData.selectedProduct?.discountPrice ? (
               <div className="flex items-center gap-2">
                 <span className="text-gray-500 line-through text-sm">
-                  {formatCurrency(formData.selectedProduct.price)}
+                  {formatCurrency(formData.selectedProduct.price * (formData.selectedProduct.quantity || 1))}
                 </span>
                 <span className="text-green-600 font-semibold">
-                  {formatCurrency(formData.selectedProduct.discountPrice)}
+                  {formatCurrency(formData.selectedProduct.discountPrice * (formData.selectedProduct.quantity || 1))}
                 </span>
               </div>
             ) : (
-              <span className="text-white">{formatCurrency(formData.selectedProduct?.price || 0)}</span>
+              <span className="text-white">
+                {formatCurrency((formData.selectedProduct?.price || 0) * (formData.selectedProduct?.quantity || 1))}
+              </span>
             )}
           </div>
         </div>

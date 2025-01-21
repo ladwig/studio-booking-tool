@@ -46,9 +46,11 @@ const formatCurrency = (amount: number) => {
 };
 
 const calculateTotal = (formData: BookingFormData): number => {
-  const productPrice = formData.selectedProduct?.price || 0;
+  const productPrice = formData.selectedProduct?.price 
+    ? formData.selectedProduct.price * (formData.selectedProduct.quantity || 1)
+    : 0;
   const extrasTotal = formData.selectedExtras?.reduce(
-    (sum, extra) => sum + extra.price,
+    (sum, extra) => sum + (extra.price * (extra.quantity || 1)),
     0
   ) || 0;
   return productPrice + extrasTotal;
@@ -71,9 +73,9 @@ export const sendBookingNotification = async (formData: BookingFormData) => {
       
       <h3>Selected Service</h3>
       <p>
-        <strong>${formData.selectedProduct?.name}</strong><br>
+        <strong>${formData.selectedProduct?.name}</strong>${formData.selectedProduct && formData.selectedProduct.quantity > 1 ? ` (${formData.selectedProduct.quantity}x)` : ''}<br>
         ${formData.selectedProduct?.description}<br>
-        ${formatCurrency(formData.selectedProduct?.price || 0)}
+        ${formatCurrency(formData.selectedProduct?.price || 0)}${formData.selectedProduct && formData.selectedProduct.quantity > 1 ? ` x ${formData.selectedProduct.quantity} = ${formatCurrency((formData.selectedProduct.price || 0) * formData.selectedProduct.quantity)}` : ''}
       </p>
       
       ${formData.selectedExtras && formData.selectedExtras.length > 0 ? `
@@ -81,7 +83,7 @@ export const sendBookingNotification = async (formData: BookingFormData) => {
         <ul>
           ${formData.selectedExtras.map(extra => `
             <li>
-              <strong>${extra.name}</strong> - ${formatCurrency(extra.price)}<br>
+              <strong>${extra.name}</strong>${extra.quantity > 1 ? ` (${extra.quantity}x)` : ''} - ${formatCurrency(extra.price)}${extra.quantity > 1 ? ` x ${extra.quantity} = ${formatCurrency(extra.price * extra.quantity)}` : ''}<br>
               ${extra.description}
             </li>
           `).join('')}
