@@ -26,7 +26,7 @@ export const STUDIO_SETTINGS = {
   },
 
   discountMode: {
-    enabled: false, // Whether discount prices are active
+    enabled: true, // Whether discount prices are active
   },
 };
 
@@ -34,7 +34,7 @@ export const MANDATORY_PRODUCTS: Product[] = [
   {
     id: 'mandatory-1',
     name: 'Final Cleaning',
-    price: 40,
+    price: 30,
     description: 'Mandatory cleaning and repainting after each session',
     isMandatory: true,
     duration: 0,
@@ -46,8 +46,8 @@ export const PRODUCTS: Product[] = [
   {
     id: '1',
     name: 'Studio A - 1h',
-    price: 80,
-    discountPrice: 60,
+    price: 85,
+    discountPrice: 70,
     description: 'One hour studio rental with basic equipment',
     duration: 1,
     allowQuantity: true,
@@ -68,7 +68,7 @@ export const PRODUCTS: Product[] = [
     id: '3',
     name: 'Studio A - Full Day',
     price: 450,
-    discountPrice: 338,
+    discountPrice: 380,
     description: '8 hours studio rental with basic equipment',
     duration: 8,
     allowQuantity: false,
