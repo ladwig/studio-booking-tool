@@ -32,6 +32,16 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
     }).format(amount);
   };
 
+  // Add a consistent date formatter
+  const formatDate = (date: Date | undefined): string => {
+    if (!date) return '';
+    // Simple, consistent format: YYYY-MM-DD
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const calculateTotal = () => {
     let total = 0;
     
@@ -206,7 +216,7 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
 
         <div className="border rounded-lg p-4">
           <h3 className="font-semibold mb-2 text-white">{translations.booking.dateAndTime}</h3>
-          <p className="text-white">{formData.date?.toLocaleDateString()} - {formData.timeSlot}</p>
+          <p className="text-white">{formatDate(formData.date)} - {formData.timeSlot}</p>
         </div>
 
         <div className="border rounded-lg p-4">

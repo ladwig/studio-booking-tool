@@ -82,7 +82,7 @@ export const EXTRAS: Extra[] = [
     name: 'Tech Support',
     price: 50,
     discountPrice: 40,
-    description: 'Professional technical support during your session',
+    description: 'Professional technical support during your session (per hour)',
     allowQuantity: true,
     maxQuantity: 8
   },
@@ -91,7 +91,7 @@ export const EXTRAS: Extra[] = [
     name: 'Color Backdrop',
     price: 9,
     discountPrice: 9,
-    description: 'Varying paper color backdrops, while price is per used meter',
+    description: 'Varying paper color backdrops, while price is per used meter. Please request your color beforhand so we can check availability / order in time.',
     allowQuantity: true,
     maxQuantity: 8
   }

@@ -39,7 +39,7 @@ export const en = {
     bookingSuccess: 'Thank you for your booking request. We will contact you shortly to confirm your reservation.',
     pricesExcludeVAT: 'All prices exclude VAT',
     discount: {
-      label: 'Special Offer',
+      label: 'Discount',
       save: 'Save {amount}',
       originalPrice: 'Original price:',
       discountPrice: 'Special price:'
