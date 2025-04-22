@@ -37,6 +37,8 @@ export const de = {
     submitting: 'Wird gesendet...',
     submitted: 'Buchung eingereicht!',
     bookingSuccess: 'Vielen Dank für Ihre Buchungsanfrage. Wir werden uns in Kürze mit Ihnen in Verbindung setzen.',
+    submissionError: 'Beim Absenden Ihrer Buchung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+    contactSupport: 'Wenn das Problem weiterhin besteht, senden Sie uns bitte eine E-Mail an:',
     pricesExcludeVAT: 'Alle Preise zzgl. MwSt.',
     discount: {
       label: 'Sonderangebot',

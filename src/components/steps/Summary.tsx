@@ -17,6 +17,7 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
   const { translations } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const isDiscountEnabled = STUDIO_SETTINGS.discountMode.enabled;
@@ -93,11 +94,13 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    setSubmissionError(null);
     try {
       await onSubmit();
       setIsSubmitted(true);
     } catch (error) {
       console.error('Submission error:', error);
+      setSubmissionError(translations.booking.submissionError || 'An error occurred. Please try again or contact us directly.');
     } finally {
       setIsSubmitting(false);
     }
@@ -280,30 +283,41 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
         </div>
       </div>
 
-      <div className="flex justify-between mt-6">
-        <button
-          onClick={onBack}
-          className="px-6 py-2 rounded-md text-white hover:bg-gray-100"
-        >
-          {translations.common.back}
-        </button>
-        <button
-          onClick={handleSubmit}
-          disabled={isSubmitting || !formData.termsAccepted}
-          className={`px-6 py-2 rounded-md text-white ${
-            !isSubmitting && formData.termsAccepted
-              ? 'bg-blue-600 hover:bg-blue-700'
-              : 'bg-gray-400 cursor-not-allowed'
-          }`}
-        >
-          {isSubmitting ? translations.booking.submitting : translations.booking.confirmBooking}
-        </button>
-      </div>
+      {/* Display Submission Error */}
+      {submissionError && (
+        <div className="border border-red-500 bg-red-100 text-red-700 p-4 rounded-lg text-center">
+          <p>{submissionError}</p>
+          <p className="mt-2 text-sm">
+            {translations.booking.contactSupport || 'If the problem persists, please email us at:'} {STUDIO_SETTINGS.emailSettings.adminEmail}
+          </p>
+        </div>
+      )}
 
-      <BookingTerms 
-        isOpen={isTermsModalOpen} 
-        onClose={() => setIsTermsModalOpen(false)} 
-      />
+      {!isSubmitted && (
+        <>
+          <div className="flex justify-between mt-6">
+            <button
+              onClick={onBack}
+              disabled={isSubmitting}
+              className="px-4 py-2 border rounded-md text-white hover:bg-gray-700 disabled:opacity-50"
+            >
+              {translations.common.back}
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={!formData.termsAccepted || isSubmitting}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? translations.booking.submitting : translations.booking.confirmBooking}
+            </button>
+          </div>
+
+          <BookingTerms 
+            isOpen={isTermsModalOpen} 
+            onClose={() => setIsTermsModalOpen(false)} 
+          />
+        </>
+      )}
     </div>
   );
 };

@@ -37,9 +37,11 @@ export const en = {
     submitting: 'Submitting...',
     submitted: 'Booking Submitted!',
     bookingSuccess: 'Thank you for your booking request. We will contact you shortly to confirm your reservation.',
+    submissionError: 'An error occurred while submitting your booking. Please try again.',
+    contactSupport: 'If the problem persists, please email us at:',
     pricesExcludeVAT: 'All prices exclude VAT',
     discount: {
-      label: 'Discount',
+      label: 'Special Offer',
       save: 'Save {amount}',
       originalPrice: 'Original price:',
       discountPrice: 'Special price:'
