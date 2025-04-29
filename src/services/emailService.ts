@@ -1,8 +1,10 @@
 import nodemailer from 'nodemailer';
 import { BookingFormData } from '../types/booking';
-import { STUDIO_SETTINGS } from '../config/settings';
+import { STUDIO_SETTINGS, MANDATORY_PRODUCTS } from '../config/settings';
+import { calculateTotal, calculateSavings, formatCurrency } from '../utils/priceCalculations';
 
 const { adminEmail, notificationSubject } = STUDIO_SETTINGS.emailSettings;
+const isDiscountEnabled = STUDIO_SETTINGS.discountMode.enabled;
 
 // Create reusable transporter object using SMTP transport
 const createTransporter = () => {
@@ -38,30 +40,13 @@ const formatDate = (date: Date) => {
   }).format(date);
 };
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(amount);
-};
-
-const calculateTotal = (formData: BookingFormData): number => {
-  const productPrice = formData.selectedProduct?.price 
-    ? formData.selectedProduct.price * (formData.selectedProduct.quantity || 1)
-    : 0;
-  const extrasTotal = formData.selectedExtras?.reduce(
-    (sum, extra) => sum + (extra.price * (extra.quantity || 1)),
-    0
-  ) || 0;
-  return productPrice + extrasTotal;
-};
-
 export const sendBookingNotification = async (formData: BookingFormData) => {
   try {
     console.log('Starting email notification process...');
     const transporter = createTransporter();
 
     const total = calculateTotal(formData);
+    const savings = calculateSavings(formData);
     
     // Create HTML content for the email
     const htmlContent = `
@@ -71,19 +56,44 @@ export const sendBookingNotification = async (formData: BookingFormData) => {
       <p><strong>Date:</strong> ${formatDate(new Date(formData.date!))}</p>
       <p><strong>Time:</strong> ${formData.timeSlot}</p>
       
-      <h3>Selected Service</h3>
-      <p>
-        <strong>${formData.selectedProduct?.name}</strong>${formData.selectedProduct && formData.selectedProduct.quantity > 1 ? ` (${formData.selectedProduct.quantity}x)` : ''}<br>
-        ${formData.selectedProduct?.description}<br>
-        ${formatCurrency(formData.selectedProduct?.price || 0)}${formData.selectedProduct && formData.selectedProduct.quantity > 1 ? ` x ${formData.selectedProduct.quantity} = ${formatCurrency((formData.selectedProduct.price || 0) * formData.selectedProduct.quantity)}` : ''}
-      </p>
+      ${formData.selectedProduct ? `
+        <h3>Selected Service</h3>
+        <p>
+          <strong>${formData.selectedProduct.name}</strong>
+          ${formData.selectedProduct.quantity > 1 ? ` (${formData.selectedProduct.quantity}x)` : ''}<br>
+          ${formData.selectedProduct.description}<br>
+          Price: 
+          ${isDiscountEnabled && formData.selectedProduct.discountPrice ? 
+            `<s>${formatCurrency(formData.selectedProduct.price * (formData.selectedProduct.quantity || 1))}</s> 
+             <strong>${formatCurrency(formData.selectedProduct.discountPrice * (formData.selectedProduct.quantity || 1))}</strong>` : 
+            formatCurrency(formData.selectedProduct.price * (formData.selectedProduct.quantity || 1))
+          }
+        </p>
+      ` : ''}
+
+      ${MANDATORY_PRODUCTS.length > 0 ? `
+        <h3>Mandatory Services</h3>
+        <ul>
+          ${MANDATORY_PRODUCTS.map(product => `
+            <li>
+              <strong>${product.name}</strong> - ${formatCurrency(product.price)}<br>
+              ${product.description}
+            </li>
+          `).join('')}
+        </ul>
+      ` : ''}
       
       ${formData.selectedExtras && formData.selectedExtras.length > 0 ? `
         <h3>Additional Services</h3>
         <ul>
           ${formData.selectedExtras.map(extra => `
             <li>
-              <strong>${extra.name}</strong>${extra.quantity > 1 ? ` (${extra.quantity}x)` : ''} - ${formatCurrency(extra.price)}${extra.quantity > 1 ? ` x ${extra.quantity} = ${formatCurrency(extra.price * extra.quantity)}` : ''}<br>
+              <strong>${extra.name}</strong>${extra.quantity > 1 ? ` (${extra.quantity}x)` : ''} - 
+              ${isDiscountEnabled && extra.discountPrice ? 
+                `<s>${formatCurrency(extra.price * extra.quantity)}</s> 
+                 <strong>${formatCurrency(extra.discountPrice * extra.quantity)}</strong>` : 
+                formatCurrency(extra.price * extra.quantity)
+              }<br>
               ${extra.description}
             </li>
           `).join('')}
@@ -93,6 +103,8 @@ export const sendBookingNotification = async (formData: BookingFormData) => {
       <h3>Customer Information</h3>
       <p>
         <strong>Name:</strong> ${formData.personalInfo.firstName} ${formData.personalInfo.lastName}<br>
+        ${formData.personalInfo.company ? `<strong>Company:</strong> ${formData.personalInfo.company}<br>` : ''}
+        <strong>Address:</strong> ${formData.personalInfo.street}, ${formData.personalInfo.city}<br>
         <strong>Email:</strong> ${formData.personalInfo.email}<br>
         <strong>Phone:</strong> ${formData.personalInfo.phone}
       </p>
@@ -102,7 +114,11 @@ export const sendBookingNotification = async (formData: BookingFormData) => {
         <p>${formData.note}</p>
       ` : ''}
       
+      ${savings > 0 ? `
+        <p style="color: green;"><strong>Savings: ${formatCurrency(savings)}</strong></p>
+      ` : ''}
       <h3>Total: ${formatCurrency(total)}</h3>
+      <p><small>All prices exclude VAT where applicable.</small></p>
     `;
 
     console.log('Preparing to send email with config:', {

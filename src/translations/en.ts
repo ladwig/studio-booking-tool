@@ -28,6 +28,8 @@ export const en = {
     company: 'Company',
     email: 'Email',
     phone: 'Phone',
+    street: 'Street',
+    city: 'City',
     additionalNotes: 'Additional Notes',
     notesPlaceholder: 'Any special requests or additional information...',
     bookingTerms: 'Booking Terms and House Rules',
@@ -41,7 +43,7 @@ export const en = {
     contactSupport: 'If the problem persists, please email us at:',
     pricesExcludeVAT: 'All prices exclude VAT',
     discount: {
-      label: 'Special Offer',
+      label: ' Discount Offer',
       save: 'Save {amount}',
       originalPrice: 'Original price:',
       discountPrice: 'Special price:'

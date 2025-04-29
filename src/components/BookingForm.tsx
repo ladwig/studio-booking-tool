@@ -23,6 +23,8 @@ const BookingForm = () => {
       firstName: '',
       lastName: '',
       company: '',
+      street: '',
+      city: '',
       email: '',
       phone: '',
     },

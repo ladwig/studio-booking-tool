@@ -32,6 +32,8 @@ const PersonalInfo = ({
     return (
       personalInfo.firstName.trim() !== '' &&
       personalInfo.lastName.trim() !== '' &&
+      personalInfo.street.trim() !== '' &&
+      personalInfo.city.trim() !== '' &&
       personalInfo.email.trim() !== '' &&
       personalInfo.phone.trim() !== ''
     );
@@ -65,6 +67,32 @@ const PersonalInfo = ({
             type="text"
             value={personalInfo.lastName}
             onChange={(e) => handleInputChange('lastName', e.target.value)}
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            {translations.booking.street} *
+          </label>
+          <input
+            type="text"
+            value={personalInfo.street}
+            onChange={(e) => handleInputChange('street', e.target.value)}
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            {translations.booking.city} *
+          </label>
+          <input
+            type="text"
+            value={personalInfo.city}
+            onChange={(e) => handleInputChange('city', e.target.value)}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             required
           />

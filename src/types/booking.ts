@@ -32,6 +32,8 @@ export interface PersonalInfo {
   firstName: string;
   lastName: string;
   company?: string;
+  street: string;
+  city: string;
   email: string;
   phone: string;
 }
@@ -45,6 +47,8 @@ export interface BookingFormData {
     firstName: string;
     lastName: string;
     company: string;
+    street: string;
+    city: string;
     email: string;
     phone: string;
   };

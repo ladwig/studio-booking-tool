@@ -5,6 +5,7 @@ import { BookingFormData } from '../../types/booking';
 import { useLanguage } from '../../contexts/LanguageContext';
 import BookingTerms from '../BookingTerms';
 import { STUDIO_SETTINGS, MANDATORY_PRODUCTS } from '../../config/settings';
+import { calculateTotal, calculateSavings, formatCurrency } from '../../utils/priceCalculations';
 
 interface SummaryProps {
   formData: BookingFormData;
@@ -26,71 +27,8 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
     setMounted(true);
   }, []);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('de-DE', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(amount);
-  };
-
-  // Add a consistent date formatter
-  const formatDate = (date: Date | undefined): string => {
-    if (!date) return '';
-    // Simple, consistent format: YYYY-MM-DD
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
-  const calculateTotal = () => {
-    let total = 0;
-    
-    // Add selected product price
-    if (formData.selectedProduct) {
-      const quantity = formData.selectedProduct.quantity || 1;
-      if (isDiscountEnabled && formData.selectedProduct.discountPrice) {
-        total += formData.selectedProduct.discountPrice * quantity;
-      } else {
-        total += formData.selectedProduct.price * quantity;
-      }
-    }
-
-    // Add extras total
-    if (formData.selectedExtras?.length) {
-      total += formData.selectedExtras.reduce((sum, extra) => {
-        const quantity = extra.quantity || 1;
-        if (isDiscountEnabled && extra.discountPrice) {
-          return sum + (extra.discountPrice * quantity);
-        }
-        return sum + (extra.price * quantity);
-      }, 0);
-    }
-
-    // Add mandatory products
-    total += MANDATORY_PRODUCTS.reduce((sum, product) => sum + product.price, 0);
-
-    return total;
-  };
-
-  const calculateSavings = () => {
-    let regularTotal = 0;
-    
-    // Regular product price
-    if (formData.selectedProduct) {
-      const quantity = formData.selectedProduct.quantity || 1;
-      regularTotal += formData.selectedProduct.price * quantity;
-    }
-    
-    // Regular extras price
-    regularTotal += formData.selectedExtras?.reduce(
-      (sum, extra) => sum + (extra.price * (extra.quantity || 1)), 
-      0
-    ) || 0;
-    
-    const discountTotal = calculateTotal();
-    return regularTotal - discountTotal;
-  };
+  const total = calculateTotal(formData);
+  const savings = calculateSavings(formData);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -142,36 +80,35 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
       </h2>
 
       <div className="space-y-4">
-        <div className="border rounded-lg p-4">
-          <h3 className="font-semibold mb-2 text-white">{translations.booking.selectProduct}</h3>
-          <div className="flex justify-between items-start">
-            <div>
-              <span className="text-white">
-                {formData.selectedProduct?.name}
-                {formData.selectedProduct?.quantity && formData.selectedProduct.quantity > 1 
-                  ? ` (${formData.selectedProduct.quantity}x)` 
-                  : ''}
-              </span>
-              <p className="text-gray-400 text-sm mt-1">{formData.selectedProduct?.description}</p>
-            </div>
-            {isDiscountEnabled && formData.selectedProduct?.discountPrice ? (
-              <div className="flex items-center gap-2">
-                <span className="text-gray-500 line-through text-sm">
+        {formData.selectedProduct && (
+          <div className="border rounded-lg p-4">
+            <h3 className="font-semibold mb-2 text-white">{translations.booking.selectProduct}</h3>
+            <div className="flex justify-between items-start">
+              <div>
+                <span className="text-white">
+                  {formData.selectedProduct.name}
+                  {formData.selectedProduct.quantity > 1 ? ` (${formData.selectedProduct.quantity}x)` : ''}
+                </span>
+                <p className="text-gray-400 text-sm mt-1">{formData.selectedProduct.description}</p>
+              </div>
+              {isDiscountEnabled && formData.selectedProduct.discountPrice ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-500 line-through text-sm">
+                    {formatCurrency(formData.selectedProduct.price * (formData.selectedProduct.quantity || 1))}
+                  </span>
+                  <span className="text-green-600 font-semibold">
+                    {formatCurrency(formData.selectedProduct.discountPrice * (formData.selectedProduct.quantity || 1))}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-white">
                   {formatCurrency(formData.selectedProduct.price * (formData.selectedProduct.quantity || 1))}
                 </span>
-                <span className="text-green-600 font-semibold">
-                  {formatCurrency(formData.selectedProduct.discountPrice * (formData.selectedProduct.quantity || 1))}
-                </span>
-              </div>
-            ) : (
-              <span className="text-white">
-                {formatCurrency((formData.selectedProduct?.price || 0) * (formData.selectedProduct?.quantity || 1))}
-              </span>
-            )}
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Mandatory Products */}
         {MANDATORY_PRODUCTS.length > 0 && (
           <div className="border rounded-lg p-4">
             <h3 className="font-semibold mb-2 text-white">{translations.booking.mandatoryServices}</h3>
@@ -219,7 +156,7 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
 
         <div className="border rounded-lg p-4">
           <h3 className="font-semibold mb-2 text-white">{translations.booking.dateAndTime}</h3>
-          <p className="text-white">{formatDate(formData.date)} - {formData.timeSlot}</p>
+          <p className="text-white">{formData.date ? `${formData.date.getFullYear()}-${(formData.date.getMonth() + 1).toString().padStart(2, '0')}-${formData.date.getDate().toString().padStart(2, '0')}` : ''} - {formData.timeSlot}</p>
         </div>
 
         <div className="border rounded-lg p-4">
@@ -243,17 +180,17 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
         )}
 
         <div className="border-t pt-4 mt-6">
-          {isDiscountEnabled && calculateSavings() > 0 && (
+          {isDiscountEnabled && savings > 0 && (
             <div className="flex justify-between items-center text-sm text-green-600 mb-2">
-              <span>{translations.booking.discount.save.replace('{amount}', formatCurrency(calculateSavings()))}</span>
+              <span>{translations.booking.discount.save.replace('{amount}', formatCurrency(savings))}</span>
             </div>
           )}
           <div className="flex flex-col space-y-2">
             <div className="flex justify-between items-center text-lg font-semibold">
               <span className="text-white">{translations.booking.total}</span>
               <div className="text-right">
-                <span className={isDiscountEnabled ? 'text-green-600' : 'text-white'}>
-                  {formatCurrency(calculateTotal())}
+                <span className={(isDiscountEnabled && savings > 0) ? 'text-green-600' : 'text-white'}>
+                  {formatCurrency(total)}
                 </span>
                 <p className="text-gray-400 text-sm mt-1">
                   {translations.booking.pricesExcludeVAT}
@@ -283,7 +220,6 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
         </div>
       </div>
 
-      {/* Display Submission Error */}
       {submissionError && (
         <div className="border border-red-500 bg-red-100 text-red-700 p-4 rounded-lg text-center">
           <p>{submissionError}</p>
