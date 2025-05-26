@@ -161,13 +161,21 @@ const DateTimeSelection = ({
   onBack,
 }: DateTimeSelectionProps) => {
   const { translations } = useLanguage();
-  const [selectedDate, setSelectedDate] = useState<Date | null>(
-    formData.date || getFirstBookableDate()
-  );
+  
+  // Initialize selectedDate and ensure form data is updated if needed
+  const initialDate = formData.date || getFirstBookableDate();
+  const [selectedDate, setSelectedDate] = useState<Date | null>(initialDate);
   const [bookedSlots, setBookedSlots] = useState<TimeSlot[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const datePickerRef = useRef<HTMLDivElement>(null);
+
+  // Update form data if it doesn't have a date but we have an initial date
+  useEffect(() => {
+    if (!formData.date && initialDate) {
+      updateFormData({ date: initialDate });
+    }
+  }, []); // Only run once on mount
 
   useEffect(() => {
     // Close date picker when clicking outside

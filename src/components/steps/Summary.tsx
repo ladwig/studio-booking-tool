@@ -30,7 +30,32 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
   const total = calculateTotal(formData);
   const savings = calculateSavings(formData);
 
+  // Check if all required fields are present
+  const isFormComplete = formData.date && formData.selectedProduct && formData.timeSlot && formData.termsAccepted;
+
   const handleSubmit = async () => {
+    // Validate required fields before submission
+    if (!formData.date) {
+      console.error('Missing date field during submission');
+      setSubmissionError('Missing booking date. Please go back and select a date.');
+      return;
+    }
+    
+    if (!formData.selectedProduct) {
+      console.error('Missing selected product during submission');
+      setSubmissionError('Missing selected service. Please go back and select a service.');
+      return;
+    }
+    
+    if (!formData.timeSlot) {
+      console.error('Missing time slot during submission');
+      setSubmissionError('Missing time slot. Please go back and select a time slot.');
+      return;
+    }
+    
+    console.log('Summary: Form data before submission:', formData);
+    console.log('Summary: Date field specifically:', formData.date);
+    
     setIsSubmitting(true);
     setSubmissionError(null);
     try {
@@ -156,7 +181,7 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
 
         <div className="border rounded-lg p-4">
           <h3 className="font-semibold mb-2 text-white">{translations.booking.dateAndTime}</h3>
-          <p className="text-white">{formData.date ? `${formData.date.getFullYear()}-${(formData.date.getMonth() + 1).toString().padStart(2, '0')}-${formData.date.getDate().toString().padStart(2, '0')}` : ''} - {formData.timeSlot}</p>
+          <p className="text-white">{formData.date ? formData.date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : ''} - {formData.timeSlot}</p>
         </div>
 
         <div className="border rounded-lg p-4">
@@ -167,6 +192,8 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
             {formData.personalInfo.company && (
               <p className="text-white"><span className="text-gray-400">{translations.booking.company}:</span> {formData.personalInfo.company}</p>
             )}
+            <p className="text-white"><span className="text-gray-400">{translations.booking.street}:</span> {formData.personalInfo.street}</p>
+            <p className="text-white"><span className="text-gray-400">{translations.booking.city}:</span> {formData.personalInfo.city}</p>
             <p className="text-white"><span className="text-gray-400">{translations.booking.email}:</span> {formData.personalInfo.email}</p>
             <p className="text-white"><span className="text-gray-400">{translations.booking.phone}:</span> {formData.personalInfo.phone}</p>
           </div>
@@ -241,7 +268,7 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
             </button>
             <button
               onClick={handleSubmit}
-              disabled={!formData.termsAccepted || isSubmitting}
+              disabled={!isFormComplete || isSubmitting}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? translations.booking.submitting : translations.booking.confirmBooking}

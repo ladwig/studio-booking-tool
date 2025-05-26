@@ -31,13 +31,35 @@ const createTransporter = () => {
   });
 };
 
-const formatDate = (date: Date) => {
+const formatDate = (date: Date | string) => {
+  // If it's a string, parse it but maintain the intended date
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  // Use a more robust formatting that avoids timezone issues
+  // by extracting the date components directly
+  if (typeof date === 'string') {
+    // If it's an ISO string, extract the date part directly
+    const datePart = date.split('T')[0]; // Get YYYY-MM-DD part
+    const [year, month, day] = datePart.split('-').map(Number);
+    
+    // Create a date using local timezone to avoid UTC conversion
+    const localDate = new Date(year, month - 1, day);
+    
+    return new Intl.DateTimeFormat('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(localDate);
+  }
+  
+  // If it's already a Date object, format directly
   return new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  }).format(date);
+  }).format(dateObj);
 };
 
 export const sendBookingNotification = async (formData: BookingFormData) => {
@@ -53,7 +75,7 @@ export const sendBookingNotification = async (formData: BookingFormData) => {
       <h2>New Studio Booking Request</h2>
       
       <h3>Booking Details</h3>
-      <p><strong>Date:</strong> ${formatDate(new Date(formData.date!))}</p>
+      <p><strong>Date:</strong> ${formatDate(formData.date!)}</p>
       <p><strong>Time:</strong> ${formData.timeSlot}</p>
       
       ${formData.selectedProduct ? `

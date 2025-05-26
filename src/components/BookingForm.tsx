@@ -46,6 +46,11 @@ const BookingForm = () => {
 
   const handleSubmit = async () => {
     try {
+      console.log('Form data before submission:', formData);
+      console.log('Date field specifically:', formData.date);
+      console.log('Date type:', typeof formData.date);
+      console.log('Date serialized:', JSON.stringify(formData.date));
+      
       const response = await fetch('/api/booking/submit', {
         method: 'POST',
         headers: {

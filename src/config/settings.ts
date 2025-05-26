@@ -58,7 +58,7 @@ export const PRODUCTS: Product[] = [
     id: '2',
     name: 'Studio A - Half Day',
     price: 275,
-    discountPrice: 205,
+    discountPrice: 230,
     description: '4 hours studio rental with basic equipment',
     duration: 4,
     allowQuantity: false,
@@ -92,7 +92,7 @@ export const EXTRAS: Extra[] = [
     price: 9,
     discountPrice: 9,
     description: 'Varying paper color backdrops, while price is per used meter. Please request your color beforhand so we can check availability / order in time.',
-    allowQuantity: true,
+    allowQuantity: false,
     maxQuantity: 8
   }
 ]; 

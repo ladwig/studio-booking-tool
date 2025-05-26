@@ -6,16 +6,36 @@ export async function POST(request: Request) {
     console.log('Received booking submission request');
     const bookingData = await request.json();
     console.log('Booking data:', JSON.stringify(bookingData, null, 2));
+    
+    // Add detailed logging for date field
+    console.log('Date field analysis:', {
+      hasDateField: 'date' in bookingData,
+      dateValue: bookingData.date,
+      dateType: typeof bookingData.date,
+      isNull: bookingData.date === null,
+      isUndefined: bookingData.date === undefined,
+      isEmpty: bookingData.date === ''
+    });
 
     // Validate the booking data
     if (!bookingData.selectedProduct || !bookingData.date || !bookingData.timeSlot) {
+      const missingFields = [];
+      if (!bookingData.selectedProduct) missingFields.push('selectedProduct');
+      if (!bookingData.date) missingFields.push('date');
+      if (!bookingData.timeSlot) missingFields.push('timeSlot');
+      
       console.log('Missing required booking information:', {
         product: !!bookingData.selectedProduct,
         date: !!bookingData.date,
-        timeSlot: !!bookingData.timeSlot
+        timeSlot: !!bookingData.timeSlot,
+        missingFields
       });
+      
       return NextResponse.json(
-        { error: 'Missing required booking information' },
+        { 
+          error: `Missing required booking information: ${missingFields.join(', ')}`,
+          missingFields 
+        },
         { status: 400 }
       );
     }
