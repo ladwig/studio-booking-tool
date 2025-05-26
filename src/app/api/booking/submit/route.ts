@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { sendBookingNotification } from '@/services/emailService';
+import { sendBookingNotification, sendCustomerConfirmation } from '@/services/emailService';
 
 export async function POST(request: Request) {
   try {
@@ -82,11 +82,17 @@ export async function POST(request: Request) {
       from: process.env.SMTP_FROM,
     });
 
-    console.log('Sending email notification...');
-    // Send email notification
+    console.log('Sending email notifications...');
+    // Send email notifications
     try {
+      // Send admin notification email
       await sendBookingNotification(bookingData);
-      console.log('Email notification sent successfully');
+      console.log('Admin email notification sent successfully');
+      
+      // Send customer confirmation email
+      await sendCustomerConfirmation(bookingData);
+      console.log('Customer confirmation email sent successfully');
+      
     } catch (emailError) {
       console.error('Email error details:', emailError);
       const errorMessage = emailError instanceof Error ? emailError.message : 'Unknown email error';
@@ -97,7 +103,7 @@ export async function POST(request: Request) {
       });
       return NextResponse.json(
         {
-          error: 'Failed to send email notification',
+          error: 'Failed to send email notifications',
           details: errorMessage
         },
         { status: 500 }

@@ -177,14 +177,14 @@ export const sendBookingNotification = async (formData: BookingFormData) => {
       <p><small>All prices exclude VAT where applicable.</small></p>
     `;
 
-    console.log('Preparing to send email with config:', {
+    console.log('Preparing to send admin email with config:', {
       from: process.env.SMTP_FROM || adminEmail,
       to: adminEmail,
       subject: notificationSubject,
       replyTo: formData.personalInfo.email,
     });
 
-    // Send email
+    // Send admin notification email
     const info = await transporter.sendMail({
       from: process.env.SMTP_FROM || adminEmail,
       to: adminEmail,
@@ -193,10 +193,134 @@ export const sendBookingNotification = async (formData: BookingFormData) => {
       replyTo: formData.personalInfo.email,
     });
 
-    console.log('Email sent successfully:', info.response);
+    console.log('Admin email sent successfully:', info.response);
     return info;
   } catch (error) {
     console.error('Error in sendBookingNotification:', error);
+    throw error;
+  }
+};
+
+export const sendCustomerConfirmation = async (formData: BookingFormData) => {
+  try {
+    console.log('Starting customer confirmation email process...');
+    
+    const transporter = createTransporter();
+
+    const total = calculateTotal(formData);
+    const savings = calculateSavings(formData);
+    
+    // Create HTML content for customer confirmation email
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #2563eb;">Thank you for your booking request!</h2>
+        
+        <p>Dear ${formData.personalInfo.firstName} ${formData.personalInfo.lastName},</p>
+        
+        <p>We have received your studio booking request and will confirm availability and contact you within the next <strong>12 hours</strong>.</p>
+        
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #333; margin-top: 0;">Your Booking Request Summary</h3>
+          
+          <h4 style="color: #555;">Booking Details</h4>
+          <p><strong>Date:</strong> ${formatDate(formData.date!)}</p>
+          <p><strong>Time:</strong> ${formData.timeSlot}</p>
+          
+          ${formData.selectedProduct ? `
+            <h4 style="color: #555;">Selected Service</h4>
+            <p>
+              <strong>${formData.selectedProduct.name}</strong>
+              ${formData.selectedProduct.quantity > 1 ? ` (${formData.selectedProduct.quantity}x)` : ''}<br>
+              <em>${formData.selectedProduct.description}</em><br>
+              Price: 
+              ${isDiscountEnabled && formData.selectedProduct.discountPrice ? 
+                `<span style="text-decoration: line-through; color: #666;">${formatCurrency(formData.selectedProduct.price * (formData.selectedProduct.quantity || 1))}</span> 
+                 <strong style="color: #16a34a;">${formatCurrency(formData.selectedProduct.discountPrice * (formData.selectedProduct.quantity || 1))}</strong>` : 
+                `<strong>${formatCurrency(formData.selectedProduct.price * (formData.selectedProduct.quantity || 1))}</strong>`
+              }
+            </p>
+          ` : ''}
+
+          ${MANDATORY_PRODUCTS.length > 0 ? `
+            <h4 style="color: #555;">Included Services</h4>
+            <ul style="margin: 0; padding-left: 20px;">
+              ${MANDATORY_PRODUCTS.map(product => `
+                <li style="margin-bottom: 8px;">
+                  <strong>${product.name}</strong> - ${formatCurrency(product.price)}<br>
+                  <em style="color: #666;">${product.description}</em>
+                </li>
+              `).join('')}
+            </ul>
+          ` : ''}
+          
+          ${formData.selectedExtras && formData.selectedExtras.length > 0 ? `
+            <h4 style="color: #555;">Additional Services</h4>
+            <ul style="margin: 0; padding-left: 20px;">
+              ${formData.selectedExtras.map(extra => `
+                <li style="margin-bottom: 8px;">
+                  <strong>${extra.name}</strong>${extra.quantity > 1 ? ` (${extra.quantity}x)` : ''} - 
+                  ${isDiscountEnabled && extra.discountPrice ? 
+                    `<span style="text-decoration: line-through; color: #666;">${formatCurrency(extra.price * extra.quantity)}</span> 
+                     <strong style="color: #16a34a;">${formatCurrency(extra.discountPrice * extra.quantity)}</strong>` : 
+                    `<strong>${formatCurrency(extra.price * extra.quantity)}</strong>`
+                  }<br>
+                  <em style="color: #666;">${extra.description}</em>
+                </li>
+              `).join('')}
+            </ul>
+          ` : ''}
+          
+          ${formData.note ? `
+            <h4 style="color: #555;">Your Notes</h4>
+            <p style="font-style: italic; color: #666;">"${formData.note}"</p>
+          ` : ''}
+          
+          ${savings > 0 ? `
+            <p style="color: #16a34a; font-weight: bold; margin: 15px 0;">You save: ${formatCurrency(savings)}</p>
+          ` : ''}
+          
+          <div style="border-top: 2px solid #2563eb; padding-top: 15px; margin-top: 20px;">
+            <h3 style="color: #2563eb; margin: 0;">Total: ${formatCurrency(total)}</h3>
+            <p style="color: #666; font-size: 14px; margin: 5px 0 0 0;">All prices exclude VAT where applicable.</p>
+          </div>
+        </div>
+        
+        <div style="background-color: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #2563eb;">
+          <h4 style="color: #1e40af; margin-top: 0;">What happens next?</h4>
+          <ul style="color: #374151; margin: 0; padding-left: 20px;">
+            <li>We will check availability for your requested date and time</li>
+            <li>You will receive a confirmation email within 12 hours</li>
+            <li>If your preferred slot is unavailable, we'll suggest alternative times</li>
+            <li>Payment details will be provided upon confirmation</li>
+          </ul>
+        </div>
+        
+        <p style="margin-top: 30px;">If you have any questions or need to make changes to your request, please don't hesitate to contact us.</p>
+        
+        <p>Best regards,<br>
+        <strong>QS1 Studio</strong></p>
+        
+      </div>
+    `;
+
+    console.log('Preparing to send customer confirmation email with config:', {
+      from: process.env.SMTP_FROM || adminEmail,
+      to: formData.personalInfo.email,
+      subject: 'Booking Request Confirmation - Studio A',
+    });
+
+    // Send customer confirmation email
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_FROM || adminEmail,
+      to: formData.personalInfo.email,
+      subject: 'Booking Request Confirmation - Studio A',
+      html: htmlContent,
+    });
+
+    console.log('Customer confirmation email sent successfully:', info.response);
+    return info;
+  } catch (error) {
+    console.error('Error in sendCustomerConfirmation:', error);
     throw error;
   }
 }; 
