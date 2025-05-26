@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sendBookingNotification, sendCustomerConfirmation } from '@/services/emailService';
+import { createBookingRequest } from '@/services/googleCalendar';
 
 export async function POST(request: Request) {
   try {
@@ -108,6 +109,23 @@ export async function POST(request: Request) {
         },
         { status: 500 }
       );
+    }
+
+    // Create calendar entry for the booking request
+    console.log('Creating calendar entry...');
+    try {
+      const calendarEventId = await createBookingRequest(bookingData);
+      console.log('Calendar entry created successfully:', calendarEventId);
+    } catch (calendarError) {
+      console.error('Calendar error details:', calendarError);
+      const errorMessage = calendarError instanceof Error ? calendarError.message : 'Unknown calendar error';
+      console.error('Full calendar error details:', {
+        message: errorMessage,
+        stack: calendarError instanceof Error ? calendarError.stack : undefined,
+        error: calendarError
+      });
+      // Don't fail the entire request if calendar creation fails
+      console.log('Continuing despite calendar error - emails were sent successfully');
     }
 
     return NextResponse.json({

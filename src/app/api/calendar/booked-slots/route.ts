@@ -8,7 +8,7 @@ const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY ?
 
 const TIMEZONE = 'Europe/Berlin';
 
-const getAuthClient = () => {
+const getReadOnlyAuthClient = () => {
   return new google.auth.JWT(
     GOOGLE_SERVICE_ACCOUNT_EMAIL,
     undefined,
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     const endOfDay = new Date(berlinDate);
     endOfDay.setHours(23, 59, 59, 999);
 
-    const auth = getAuthClient();
+    const auth = getReadOnlyAuthClient();
     const calendar = google.calendar({ version: 'v3', auth });
 
     const response = await calendar.events.list({
