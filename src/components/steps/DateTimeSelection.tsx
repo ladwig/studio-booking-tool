@@ -41,12 +41,25 @@ const formatTime = (hour: number) => {
 // Get the first bookable date (considering minAdvanceBookingHours)
 const getFirstBookableDate = () => {
   const now = new Date();
+  console.log('getFirstBookableDate - now:', now);
+  
   const berlinTime = new Date(now.toLocaleString('en-US', { timeZone: TIMEZONE }));
+  console.log('getFirstBookableDate - berlinTime:', berlinTime);
+  
   const minBookingTime = new Date(
     berlinTime.getTime() + STUDIO_SETTINGS.bookingRules.minAdvanceBookingHours * 60 * 60 * 1000
   );
+  console.log('getFirstBookableDate - minBookingTime:', minBookingTime);
+  
   const date = new Date(minBookingTime);
   date.setHours(0, 0, 0, 0);
+  console.log('getFirstBookableDate - final date:', date);
+  console.log('getFirstBookableDate - final date components:', {
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    day: date.getDate()
+  });
+  
   return date;
 };
 
@@ -214,6 +227,19 @@ const DateTimeSelection = ({
   }, [selectedDate]);
 
   const handleDateChange = (date: Date | null) => {
+    console.log('handleDateChange - input date:', date);
+    if (date) {
+      console.log('handleDateChange - date components:', {
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        day: date.getDate(),
+        hours: date.getHours(),
+        minutes: date.getMinutes(),
+        seconds: date.getSeconds()
+      });
+      console.log('handleDateChange - date.toISOString():', date.toISOString());
+    }
+    
     setSelectedDate(date);
     updateFormData({ date: date || undefined, timeSlot: undefined });
     setShowDatePicker(false);

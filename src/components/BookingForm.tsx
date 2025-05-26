@@ -49,14 +49,32 @@ const BookingForm = () => {
       console.log('Form data before submission:', formData);
       console.log('Date field specifically:', formData.date);
       console.log('Date type:', typeof formData.date);
+      if (formData.date) {
+        console.log('Date components before serialization:', {
+          year: formData.date.getFullYear(),
+          month: formData.date.getMonth() + 1,
+          day: formData.date.getDate(),
+          hours: formData.date.getHours(),
+          minutes: formData.date.getMinutes()
+        });
+        console.log('Date toISOString():', formData.date.toISOString());
+      }
       console.log('Date serialized:', JSON.stringify(formData.date));
+      
+      const serializedFormData = JSON.stringify(formData);
+      console.log('Full serialized form data:', serializedFormData);
+      
+      // Parse it back to see what the server will receive
+      const parsedBack = JSON.parse(serializedFormData);
+      console.log('Parsed back date:', parsedBack.date);
+      console.log('Parsed back date type:', typeof parsedBack.date);
       
       const response = await fetch('/api/booking/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: serializedFormData,
       });
 
       if (!response.ok) {

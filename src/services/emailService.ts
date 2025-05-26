@@ -32,39 +32,63 @@ const createTransporter = () => {
 };
 
 const formatDate = (date: Date | string) => {
-  // If it's a string, parse it but maintain the intended date
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  console.log('formatDate input:', { date, type: typeof date });
   
-  // Use a more robust formatting that avoids timezone issues
-  // by extracting the date components directly
   if (typeof date === 'string') {
-    // If it's an ISO string, extract the date part directly
-    const datePart = date.split('T')[0]; // Get YYYY-MM-DD part
-    const [year, month, day] = datePart.split('-').map(Number);
+    console.log('Processing string date:', date);
     
-    // Create a date using local timezone to avoid UTC conversion
-    const localDate = new Date(year, month - 1, day);
+    // Try to parse the date string directly
+    const parsedDate = new Date(date);
+    console.log('Parsed date object:', parsedDate);
+    console.log('Parsed date getDate():', parsedDate.getDate());
+    console.log('Parsed date getMonth():', parsedDate.getMonth());
+    console.log('Parsed date getFullYear():', parsedDate.getFullYear());
     
-    return new Intl.DateTimeFormat('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }).format(localDate);
+    // Check if it's an ISO string and extract date parts manually
+    if (date.includes('T') || date.includes('-')) {
+      const datePart = date.split('T')[0]; // Get YYYY-MM-DD part
+      console.log('Extracted date part:', datePart);
+      
+      const [year, month, day] = datePart.split('-').map(Number);
+      console.log('Manual date components:', { year, month, day });
+      
+      // Create date with explicit components to avoid any parsing issues
+      const manualDate = new Date(year, month - 1, day, 12, 0, 0); // Set to noon to avoid timezone issues
+      console.log('Manual date object:', manualDate);
+      
+      const formatted = new Intl.DateTimeFormat('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }).format(manualDate);
+      
+      console.log('Final formatted date:', formatted);
+      return formatted;
+    }
   }
   
-  // If it's already a Date object, format directly
-  return new Intl.DateTimeFormat('en-US', {
+  // If it's already a Date object
+  console.log('Processing Date object:', date);
+  const formatted = new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  }).format(dateObj);
+  }).format(date as Date);
+  
+  console.log('Formatted Date object:', formatted);
+  return formatted;
 };
 
 export const sendBookingNotification = async (formData: BookingFormData) => {
   try {
     console.log('Starting email notification process...');
+    console.log('Raw formData.date received:', formData.date);
+    console.log('Type of formData.date:', typeof formData.date);
+    console.log('formData.date toString():', formData.date?.toString());
+    console.log('formData.date JSON.stringify():', JSON.stringify(formData.date));
+    
     const transporter = createTransporter();
 
     const total = calculateTotal(formData);
