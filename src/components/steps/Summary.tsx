@@ -181,7 +181,15 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
 
         <div className="border rounded-lg p-4">
           <h3 className="font-semibold mb-2 text-white">{translations.booking.dateAndTime}</h3>
-          <p className="text-white">{formData.date ? formData.date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : ''} - {formData.timeSlot}</p>
+          <p className="text-white">
+            {formData.date ? new Intl.DateTimeFormat('en-US', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric',
+              timeZone: 'UTC'
+            }).format(new Date(formData.date.getFullYear(), formData.date.getMonth(), formData.date.getDate())) : ''} - {formData.timeSlot}
+          </p>
         </div>
 
         <div className="border rounded-lg p-4">

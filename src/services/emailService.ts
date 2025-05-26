@@ -37,13 +37,6 @@ const formatDate = (date: Date | string) => {
   if (typeof date === 'string') {
     console.log('Processing string date:', date);
     
-    // Try to parse the date string directly
-    const parsedDate = new Date(date);
-    console.log('Parsed date object:', parsedDate);
-    console.log('Parsed date getDate():', parsedDate.getDate());
-    console.log('Parsed date getMonth():', parsedDate.getMonth());
-    console.log('Parsed date getFullYear():', parsedDate.getFullYear());
-    
     // Check if it's an ISO string and extract date parts manually
     if (date.includes('T') || date.includes('-')) {
       const datePart = date.split('T')[0]; // Get YYYY-MM-DD part
@@ -52,9 +45,14 @@ const formatDate = (date: Date | string) => {
       const [year, month, day] = datePart.split('-').map(Number);
       console.log('Manual date components:', { year, month, day });
       
-      // Create date with explicit components to avoid any parsing issues
-      const manualDate = new Date(year, month - 1, day, 12, 0, 0); // Set to noon to avoid timezone issues
+      // Create date-only object to avoid timezone conversion issues
+      const manualDate = new Date(year, month - 1, day);
       console.log('Manual date object:', manualDate);
+      console.log('Manual date components check:', {
+        year: manualDate.getFullYear(),
+        month: manualDate.getMonth() + 1,
+        day: manualDate.getDate()
+      });
       
       const formatted = new Intl.DateTimeFormat('en-US', {
         weekday: 'long',
@@ -66,6 +64,18 @@ const formatDate = (date: Date | string) => {
       console.log('Final formatted date:', formatted);
       return formatted;
     }
+    
+    // Fallback: try to parse the date string directly
+    const parsedDate = new Date(date);
+    console.log('Parsed date object:', parsedDate);
+    const formatted = new Intl.DateTimeFormat('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(parsedDate);
+    console.log('Formatted parsed date:', formatted);
+    return formatted;
   }
   
   // If it's already a Date object

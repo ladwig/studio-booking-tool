@@ -43,16 +43,14 @@ const getFirstBookableDate = () => {
   const now = new Date();
   console.log('getFirstBookableDate - now:', now);
   
-  const berlinTime = new Date(now.toLocaleString('en-US', { timeZone: TIMEZONE }));
-  console.log('getFirstBookableDate - berlinTime:', berlinTime);
-  
+  // Work with local time to avoid timezone conversion issues
   const minBookingTime = new Date(
-    berlinTime.getTime() + STUDIO_SETTINGS.bookingRules.minAdvanceBookingHours * 60 * 60 * 1000
+    now.getTime() + STUDIO_SETTINGS.bookingRules.minAdvanceBookingHours * 60 * 60 * 1000
   );
   console.log('getFirstBookableDate - minBookingTime:', minBookingTime);
   
-  const date = new Date(minBookingTime);
-  date.setHours(0, 0, 0, 0);
+  // Create a date-only object to avoid timezone issues
+  const date = new Date(minBookingTime.getFullYear(), minBookingTime.getMonth(), minBookingTime.getDate());
   console.log('getFirstBookableDate - final date:', date);
   console.log('getFirstBookableDate - final date components:', {
     year: date.getFullYear(),
@@ -145,15 +143,14 @@ const isSlotAvailable = (
 // Generate an array of dates for the week view starting from Monday
 const getWeekDates = (currentDate: Date) => {
   const dates = [];
-  const startOfWeek = new Date(currentDate);
+  const startOfWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
   // Get to Monday (1 is Monday, 0 is Sunday)
   const day = startOfWeek.getDay();
   const diff = day === 0 ? -6 : 1 - day; // If Sunday, go back 6 days, otherwise go to Monday
-  startOfWeek.setDate(currentDate.getDate() + diff);
+  startOfWeek.setDate(startOfWeek.getDate() + diff);
 
   for (let i = 0; i < 7; i++) {
-    const date = new Date(startOfWeek);
-    date.setDate(startOfWeek.getDate() + i);
+    const date = new Date(startOfWeek.getFullYear(), startOfWeek.getMonth(), startOfWeek.getDate() + i);
     dates.push(date);
   }
   return dates;
@@ -229,19 +226,24 @@ const DateTimeSelection = ({
   const handleDateChange = (date: Date | null) => {
     console.log('handleDateChange - input date:', date);
     if (date) {
-      console.log('handleDateChange - date components:', {
-        year: date.getFullYear(),
-        month: date.getMonth() + 1,
-        day: date.getDate(),
-        hours: date.getHours(),
-        minutes: date.getMinutes(),
-        seconds: date.getSeconds()
+      // Normalize the date to avoid timezone issues by creating a date-only object
+      const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      console.log('handleDateChange - normalized date components:', {
+        year: normalizedDate.getFullYear(),
+        month: normalizedDate.getMonth() + 1,
+        day: normalizedDate.getDate(),
+        hours: normalizedDate.getHours(),
+        minutes: normalizedDate.getMinutes(),
+        seconds: normalizedDate.getSeconds()
       });
-      console.log('handleDateChange - date.toISOString():', date.toISOString());
+      console.log('handleDateChange - normalized date.toISOString():', normalizedDate.toISOString());
+      
+      setSelectedDate(normalizedDate);
+      updateFormData({ date: normalizedDate, timeSlot: undefined });
+    } else {
+      setSelectedDate(date);
+      updateFormData({ date: date || undefined, timeSlot: undefined });
     }
-    
-    setSelectedDate(date);
-    updateFormData({ date: date || undefined, timeSlot: undefined });
     setShowDatePicker(false);
   };
 
@@ -251,8 +253,7 @@ const DateTimeSelection = ({
 
   const navigateDate = (days: number) => {
     if (!selectedDate) return;
-    const newDate = new Date(selectedDate);
-    newDate.setDate(selectedDate.getDate() + days);
+    const newDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() + days);
     handleDateChange(newDate);
   };
 
