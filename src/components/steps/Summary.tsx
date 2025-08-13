@@ -187,7 +187,7 @@ const Summary = ({ formData, updateFormData, onBack, onSubmit }: SummaryProps) =
               year: 'numeric', 
               month: 'long', 
               day: 'numeric',
-              timeZone: 'UTC'
+              timeZone: 'Europe/Berlin'
             }).format(new Date(formData.date.getFullYear(), formData.date.getMonth(), formData.date.getDate())) : ''} - {formData.timeSlot}
           </p>
         </div>
