@@ -61,7 +61,16 @@ const BookingForm = () => {
       }
       console.log('Date serialized:', JSON.stringify(formData.date));
       
-      const serializedFormData = JSON.stringify(formData);
+      // Create a copy of formData with date as date-only string to avoid timezone issues
+      const formDataForSubmission = {
+        ...formData,
+        date: formData.date ? `${formData.date.getFullYear()}-${String(formData.date.getMonth() + 1).padStart(2, '0')}-${String(formData.date.getDate()).padStart(2, '0')}` : undefined
+      };
+      
+      console.log('Form data for submission with date string:', formDataForSubmission);
+      console.log('Date string sent to API:', formDataForSubmission.date);
+      
+      const serializedFormData = JSON.stringify(formDataForSubmission);
       console.log('Full serialized form data:', serializedFormData);
       
       // Parse it back to see what the server will receive

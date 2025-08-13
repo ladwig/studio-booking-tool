@@ -18,6 +18,24 @@ export async function POST(request: Request) {
       isEmpty: bookingData.date === ''
     });
 
+    // Additional date debugging
+    if (bookingData.date) {
+      console.log('API: Raw date received:', bookingData.date);
+      console.log('API: Date string details:', {
+        stringValue: String(bookingData.date),
+        includesT: bookingData.date.includes && bookingData.date.includes('T'),
+        includesDash: bookingData.date.includes && bookingData.date.includes('-'),
+        length: bookingData.date.length
+      });
+      
+      if (typeof bookingData.date === 'string' && bookingData.date.includes('T')) {
+        const datePart = bookingData.date.split('T')[0];
+        console.log('API: Extracted date part:', datePart);
+        const [year, month, day] = datePart.split('-');
+        console.log('API: Date components from string:', { year, month, day });
+      }
+    }
+
     // Validate the booking data
     if (!bookingData.selectedProduct || !bookingData.date || !bookingData.timeSlot) {
       const missingFields = [];
