@@ -88,25 +88,48 @@ export const createBookingRequest = async (bookingData: BookingFormData): Promis
       throw new Error('Missing required booking data for calendar entry');
     }
 
+    console.log('Calendar: Raw bookingData.date:', bookingData.date);
+    console.log('Calendar: Type of bookingData.date:', typeof bookingData.date);
+
     // Parse the time slot
     const [startTime, endTime] = bookingData.timeSlot.split(' - ');
     const [startHour, startMinute] = startTime.split(':').map(Number);
     const [endHour, endMinute] = endTime.split(':').map(Number);
 
-    // Create start and end datetime objects in Berlin timezone
-    // We need to create the date in Berlin timezone, not convert to UTC
-    const berlinDate = new Date(bookingData.date);
+    // Handle date properly whether it's a Date object or ISO string
+    let year: number, month: number, day: number;
     
-    // Create the datetime string in Berlin timezone format
-    const year = berlinDate.getFullYear();
-    const month = String(berlinDate.getMonth() + 1).padStart(2, '0');
-    const day = String(berlinDate.getDate()).padStart(2, '0');
+    if (typeof bookingData.date === 'string') {
+      console.log('Calendar: Processing date string:', bookingData.date);
+      
+      // Extract date parts from ISO string to avoid timezone conversion
+      const datePart = (bookingData.date as string).split('T')[0]; // Get YYYY-MM-DD part
+      console.log('Calendar: Extracted date part:', datePart);
+      
+      const [yearStr, monthStr, dayStr] = datePart.split('-');
+      year = parseInt(yearStr);
+      month = parseInt(monthStr);
+      day = parseInt(dayStr);
+      
+      console.log('Calendar: Parsed date components:', { year, month, day });
+    } else {
+      // It's a Date object
+      console.log('Calendar: Processing Date object:', bookingData.date);
+      year = (bookingData.date as Date).getFullYear();
+      month = (bookingData.date as Date).getMonth() + 1; // getMonth() returns 0-11
+      day = (bookingData.date as Date).getDate();
+      console.log('Calendar: Date object components:', { year, month, day });
+    }
+    
+    // Format for Google Calendar API
+    const monthPadded = String(month).padStart(2, '0');
+    const dayPadded = String(day).padStart(2, '0');
     
     const startTimeStr = `${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}:00`;
     const endTimeStr = `${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}:00`;
     
-    const startISO = `${year}-${month}-${day}T${startTimeStr}`;
-    const endISO = `${year}-${month}-${day}T${endTimeStr}`;
+    const startISO = `${year}-${monthPadded}-${dayPadded}T${startTimeStr}`;
+    const endISO = `${year}-${monthPadded}-${dayPadded}T${endTimeStr}`;
 
     console.log('Event times:', { startISO, endISO });
 

@@ -34,21 +34,27 @@ const createTransporter = () => {
 const formatDate = (date: Date | string) => {
   console.log('formatDate input:', { date, type: typeof date });
   
+  let year: number, month: number, day: number;
+  
   if (typeof date === 'string') {
-    console.log('Processing string date:', date);
+    console.log('Email: Processing string date:', date);
     
     // Check if it's an ISO string and extract date parts manually
     if (date.includes('T') || date.includes('-')) {
       const datePart = date.split('T')[0]; // Get YYYY-MM-DD part
-      console.log('Extracted date part:', datePart);
+      console.log('Email: Extracted date part:', datePart);
       
-      const [year, month, day] = datePart.split('-').map(Number);
-      console.log('Manual date components:', { year, month, day });
+      const [yearStr, monthStr, dayStr] = datePart.split('-');
+      year = parseInt(yearStr);
+      month = parseInt(monthStr); // Keep as 1-12 for now
+      day = parseInt(dayStr);
       
-      // Create date-only object to avoid timezone conversion issues
+      console.log('Email: Manual date components:', { year, month, day });
+      
+      // Create date-only object using the extracted components
       const manualDate = new Date(year, month - 1, day);
-      console.log('Manual date object:', manualDate);
-      console.log('Manual date components check:', {
+      console.log('Email: Manual date object:', manualDate);
+      console.log('Email: Manual date components check:', {
         year: manualDate.getFullYear(),
         month: manualDate.getMonth() + 1,
         day: manualDate.getDate()
@@ -59,35 +65,38 @@ const formatDate = (date: Date | string) => {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
+        timeZone: 'Europe/Berlin'
       }).format(manualDate);
       
-      console.log('Final formatted date:', formatted);
+      console.log('Email: Final formatted date:', formatted);
       return formatted;
     }
     
     // Fallback: try to parse the date string directly
     const parsedDate = new Date(date);
-    console.log('Parsed date object:', parsedDate);
+    console.log('Email: Parsed date object:', parsedDate);
     const formatted = new Intl.DateTimeFormat('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric',
+      timeZone: 'Europe/Berlin'
     }).format(parsedDate);
-    console.log('Formatted parsed date:', formatted);
+    console.log('Email: Formatted parsed date:', formatted);
     return formatted;
   }
   
   // If it's already a Date object
-  console.log('Processing Date object:', date);
+  console.log('Email: Processing Date object:', date);
   const formatted = new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    timeZone: 'Europe/Berlin'
   }).format(date as Date);
   
-  console.log('Formatted Date object:', formatted);
+  console.log('Email: Formatted Date object:', formatted);
   return formatted;
 };
 
