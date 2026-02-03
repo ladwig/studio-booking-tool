@@ -9,7 +9,7 @@ export const STUDIO_SETTINGS = {
     earliestBookingTime: 7, // Earliest time someone can start a booking 
     latestBookingTime: 21, // Latest time someone can start a booking (9 PM)
   },
-  
+
   bookingRules: {
     minAdvanceBookingHours: 24, // Minimum hours in advance for booking
     maxAdvanceBookingDays: 60, // Maximum days in advance for booking
@@ -21,7 +21,7 @@ export const STUDIO_SETTINGS = {
   },
 
   emailSettings: {
-    adminEmail: 'info@qs1.studio, daniel@qs1.studio, ladwig.daniel@icloud.com',
+    adminEmail: 'info@qs1.studio, daniel@qs1.studio',
     notificationSubject: 'New Studio A Booking Request',
   },
 

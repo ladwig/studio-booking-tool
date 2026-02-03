@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { BookingFormData } from '../types/booking';
 import { STUDIO_SETTINGS, MANDATORY_PRODUCTS } from '../config/settings';
 import { calculateTotal, calculateSavings, formatCurrency } from '../utils/priceCalculations';
@@ -6,113 +6,63 @@ import { calculateTotal, calculateSavings, formatCurrency } from '../utils/price
 const { adminEmail, notificationSubject } = STUDIO_SETTINGS.emailSettings;
 const isDiscountEnabled = STUDIO_SETTINGS.discountMode.enabled;
 
-// Create reusable transporter object using SMTP transport
-const createTransporter = () => {
-  console.log('Creating SMTP transporter with config:', {
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: {
-      user: process.env.SMTP_USER,
-      // password is hidden
-    },
-  });
+// Create Resend client
+const resend = new Resend(process.env.RESEND_API_KEY);
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
-    },
-    debug: true,
-    logger: true
-  });
+// Helper to parse comma-separated email addresses into an array
+const parseEmailAddresses = (emails: string): string[] => {
+  return emails.split(',').map(email => email.trim()).filter(email => email.length > 0);
 };
 
 const formatDate = (date: Date | string) => {
-  console.log('formatDate input:', { date, type: typeof date });
-  
-  let year: number, month: number, day: number;
-  
   if (typeof date === 'string') {
-    console.log('Email: Processing string date:', date);
-    
     // Check if it's an ISO string and extract date parts manually
     if (date.includes('T') || date.includes('-')) {
       const datePart = date.split('T')[0]; // Get YYYY-MM-DD part
-      console.log('Email: Extracted date part:', datePart);
-      
       const [yearStr, monthStr, dayStr] = datePart.split('-');
-      year = parseInt(yearStr);
-      month = parseInt(monthStr); // Keep as 1-12 for now
-      day = parseInt(dayStr);
-      
-      console.log('Email: Manual date components:', { year, month, day });
-      
+      const year = parseInt(yearStr);
+      const month = parseInt(monthStr);
+      const day = parseInt(dayStr);
+
       // Create date-only object using the extracted components
       const manualDate = new Date(year, month - 1, day);
-      console.log('Email: Manual date object:', manualDate);
-      console.log('Email: Manual date components check:', {
-        year: manualDate.getFullYear(),
-        month: manualDate.getMonth() + 1,
-        day: manualDate.getDate()
-      });
-      
-      const formatted = new Intl.DateTimeFormat('en-US', {
+
+      return new Intl.DateTimeFormat('en-US', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric',
         timeZone: 'Europe/Berlin'
       }).format(manualDate);
-      
-      console.log('Email: Final formatted date:', formatted);
-      return formatted;
     }
-    
+
     // Fallback: try to parse the date string directly
     const parsedDate = new Date(date);
-    console.log('Email: Parsed date object:', parsedDate);
-    const formatted = new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       timeZone: 'Europe/Berlin'
     }).format(parsedDate);
-    console.log('Email: Formatted parsed date:', formatted);
-    return formatted;
   }
-  
+
   // If it's already a Date object
-  console.log('Email: Processing Date object:', date);
-  const formatted = new Intl.DateTimeFormat('en-US', {
+  return new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
     timeZone: 'Europe/Berlin'
   }).format(date as Date);
-  
-  console.log('Email: Formatted Date object:', formatted);
-  return formatted;
 };
 
 export const sendBookingNotification = async (formData: BookingFormData) => {
   try {
-    console.log('Starting email notification process...');
-    console.log('Raw formData.date received:', formData.date);
-    console.log('Type of formData.date:', typeof formData.date);
-    console.log('formData.date toString():', formData.date?.toString());
-    console.log('formData.date JSON.stringify():', JSON.stringify(formData.date));
-    
-    const transporter = createTransporter();
-
     const total = calculateTotal(formData);
     const savings = calculateSavings(formData);
-    
+
     // Create HTML content for the email
     const htmlContent = `
       <h2>New Studio Booking Request</h2>
@@ -128,11 +78,11 @@ export const sendBookingNotification = async (formData: BookingFormData) => {
           ${formData.selectedProduct.quantity > 1 ? ` (${formData.selectedProduct.quantity}x)` : ''}<br>
           ${formData.selectedProduct.description}<br>
           Price: 
-          ${isDiscountEnabled && formData.selectedProduct.discountPrice ? 
-            `<s>${formatCurrency(formData.selectedProduct.price * (formData.selectedProduct.quantity || 1))}</s> 
-             <strong>${formatCurrency(formData.selectedProduct.discountPrice * (formData.selectedProduct.quantity || 1))}</strong>` : 
-            formatCurrency(formData.selectedProduct.price * (formData.selectedProduct.quantity || 1))
-          }
+          ${isDiscountEnabled && formData.selectedProduct.discountPrice ?
+          `<s>${formatCurrency(formData.selectedProduct.price * (formData.selectedProduct.quantity || 1))}</s> 
+             <strong>${formatCurrency(formData.selectedProduct.discountPrice * (formData.selectedProduct.quantity || 1))}</strong>` :
+          formatCurrency(formData.selectedProduct.price * (formData.selectedProduct.quantity || 1))
+        }
         </p>
       ` : ''}
 
@@ -154,11 +104,11 @@ export const sendBookingNotification = async (formData: BookingFormData) => {
           ${formData.selectedExtras.map(extra => `
             <li>
               <strong>${extra.name}</strong>${extra.quantity > 1 ? ` (${extra.quantity}x)` : ''} - 
-              ${isDiscountEnabled && extra.discountPrice ? 
-                `<s>${formatCurrency(extra.price * extra.quantity)}</s> 
-                 <strong>${formatCurrency(extra.discountPrice * extra.quantity)}</strong>` : 
-                formatCurrency(extra.price * extra.quantity)
-              }<br>
+              ${isDiscountEnabled && extra.discountPrice ?
+            `<s>${formatCurrency(extra.price * extra.quantity)}</s> 
+                 <strong>${formatCurrency(extra.discountPrice * extra.quantity)}</strong>` :
+            formatCurrency(extra.price * extra.quantity)
+          }<br>
               ${extra.description}
             </li>
           `).join('')}
@@ -186,24 +136,21 @@ export const sendBookingNotification = async (formData: BookingFormData) => {
       <p><small>All prices exclude VAT where applicable.</small></p>
     `;
 
-    console.log('Preparing to send admin email with config:', {
-      from: process.env.SMTP_FROM || adminEmail,
-      to: adminEmail,
-      subject: notificationSubject,
-      replyTo: formData.personalInfo.email,
-    });
-
-    // Send admin notification email
-    const info = await transporter.sendMail({
-      from: process.env.SMTP_FROM || adminEmail,
-      to: adminEmail,
+    // Send admin notification email via Resend
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: parseEmailAddresses(adminEmail),
       subject: notificationSubject,
       html: htmlContent,
       replyTo: formData.personalInfo.email,
     });
 
-    console.log('Admin email sent successfully:', info.response);
-    return info;
+    if (error) {
+      console.error('Resend error:', error);
+      throw error;
+    }
+
+    return data;
   } catch (error) {
     console.error('Error in sendBookingNotification:', error);
     throw error;
@@ -212,13 +159,9 @@ export const sendBookingNotification = async (formData: BookingFormData) => {
 
 export const sendCustomerConfirmation = async (formData: BookingFormData) => {
   try {
-    console.log('Starting customer confirmation email process...');
-    
-    const transporter = createTransporter();
-
     const total = calculateTotal(formData);
     const savings = calculateSavings(formData);
-    
+
     // Create HTML content for customer confirmation email
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -242,11 +185,11 @@ export const sendCustomerConfirmation = async (formData: BookingFormData) => {
               ${formData.selectedProduct.quantity > 1 ? ` (${formData.selectedProduct.quantity}x)` : ''}<br>
               <em>${formData.selectedProduct.description}</em><br>
               Price: 
-              ${isDiscountEnabled && formData.selectedProduct.discountPrice ? 
-                `<span style="text-decoration: line-through; color: #666;">${formatCurrency(formData.selectedProduct.price * (formData.selectedProduct.quantity || 1))}</span> 
-                 <strong style="color: #16a34a;">${formatCurrency(formData.selectedProduct.discountPrice * (formData.selectedProduct.quantity || 1))}</strong>` : 
-                `<strong>${formatCurrency(formData.selectedProduct.price * (formData.selectedProduct.quantity || 1))}</strong>`
-              }
+              ${isDiscountEnabled && formData.selectedProduct.discountPrice ?
+          `<span style="text-decoration: line-through; color: #666;">${formatCurrency(formData.selectedProduct.price * (formData.selectedProduct.quantity || 1))}</span> 
+                 <strong style="color: #16a34a;">${formatCurrency(formData.selectedProduct.discountPrice * (formData.selectedProduct.quantity || 1))}</strong>` :
+          `<strong>${formatCurrency(formData.selectedProduct.price * (formData.selectedProduct.quantity || 1))}</strong>`
+        }
             </p>
           ` : ''}
 
@@ -268,11 +211,11 @@ export const sendCustomerConfirmation = async (formData: BookingFormData) => {
               ${formData.selectedExtras.map(extra => `
                 <li style="margin-bottom: 8px;">
                   <strong>${extra.name}</strong>${extra.quantity > 1 ? ` (${extra.quantity}x)` : ''} - 
-                  ${isDiscountEnabled && extra.discountPrice ? 
-                    `<span style="text-decoration: line-through; color: #666;">${formatCurrency(extra.price * extra.quantity)}</span> 
-                     <strong style="color: #16a34a;">${formatCurrency(extra.discountPrice * extra.quantity)}</strong>` : 
-                    `<strong>${formatCurrency(extra.price * extra.quantity)}</strong>`
-                  }<br>
+                  ${isDiscountEnabled && extra.discountPrice ?
+            `<span style="text-decoration: line-through; color: #666;">${formatCurrency(extra.price * extra.quantity)}</span> 
+                     <strong style="color: #16a34a;">${formatCurrency(extra.discountPrice * extra.quantity)}</strong>` :
+            `<strong>${formatCurrency(extra.price * extra.quantity)}</strong>`
+          }<br>
                   <em style="color: #666;">${extra.description}</em>
                 </li>
               `).join('')}
@@ -312,22 +255,20 @@ export const sendCustomerConfirmation = async (formData: BookingFormData) => {
       </div>
     `;
 
-    console.log('Preparing to send customer confirmation email with config:', {
-      from: process.env.SMTP_FROM || adminEmail,
-      to: formData.personalInfo.email,
-      subject: 'Booking Request Confirmation - Studio A',
-    });
-
-    // Send customer confirmation email
-    const info = await transporter.sendMail({
-      from: process.env.SMTP_FROM || adminEmail,
+    // Send customer confirmation email via Resend
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
       to: formData.personalInfo.email,
       subject: 'Booking Request Confirmation - Studio A',
       html: htmlContent,
     });
 
-    console.log('Customer confirmation email sent successfully:', info.response);
-    return info;
+    if (error) {
+      console.error('Resend error:', error);
+      throw error;
+    }
+
+    return data;
   } catch (error) {
     console.error('Error in sendCustomerConfirmation:', error);
     throw error;
